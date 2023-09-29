@@ -51,7 +51,4 @@ int main(int argc, char *argv[])
         printf("Error in input: Unknown status\n");
         break;
     }
-    
-   
-
 }

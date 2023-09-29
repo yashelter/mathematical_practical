@@ -56,11 +56,6 @@ enum digit_status from_str_to_ll(char* number, unsigned long long * result)
     return digit_status_correct;
 }
 
-enum input_status validate_input_parameters(int argc, char *argv[])
-{
-    return input_status_correct;
-}
-
 //======================================================================
 
 // flag <-h>
