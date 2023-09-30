@@ -106,7 +106,7 @@ void print_separable_digits_in_range(unsigned long long number, unsigned char * 
     }
             break;
         case memory_err_sdr:
-            printf("Error: impossible to create array\n", number);
+            printf("Error: impossible to create array\n");
             break;
         default:
             break;
@@ -191,7 +191,7 @@ enum table_possibillity validate_input(unsigned long long *number)
     return table_valid;
 }
 
-void print_table_of_powers(enum table_possibillity can_build, const unsigned long long *number)
+void print_table_of_powers(enum table_possibillity can_build, unsigned long long *number)
 {
     switch (can_build)
     {
@@ -199,14 +199,14 @@ void print_table_of_powers(enum table_possibillity can_build, const unsigned lon
         printf("Was enetered incorrect limit, please check that it stays in 1 to 10 to solve table of powers\n");
         break;
     case table_valid:
-        printf("Table of powers from 1 to 10, base range: 1 to %d", number);
+        printf("Table of powers from 1 to 10, base range: 1 to %llu", *number);
         for (int bases = 1; bases <= 10; bases++) 
         {
             unsigned long long cur_base = (unsigned long long)(cur_base);
-            printf("\n\nFor base %lld:  ", bases);
+            printf("\n\nFor base %d:  ", bases);
             for (int degree = 1; degree <= *number; degree++)
             {
-                printf("%d^%d=%lld; ", bases, degree, cur_base);
+                printf("%d^%d=%llu; ", bases, degree, cur_base);
                 cur_base *= bases;
             }
         }
@@ -225,7 +225,7 @@ enum sum_checkmarks{
     sum_overflow,
     sum_correct
 };
-enum sum_checkmarks sum_of_numbers(unsigned long long *number, long long * result)
+enum sum_checkmarks sum_of_numbers(unsigned long long *number, unsigned long long * result)
 {
     unsigned long long sum = (*number * (*number + 1)) / 2;
     if (sum < *number){
@@ -293,6 +293,8 @@ void print_factorial (enum factorial_status_code status, unsigned long long *num
             break; 
         case fsc_correct: 
             printf("Factorial of number <%llu> is <%llu>\n", *number, *factorial); 
+            break;
+         case fsc_solving:
             break; 
     }
 }

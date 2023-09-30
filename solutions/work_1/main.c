@@ -2,15 +2,18 @@
 
 void print_hint()
 {
-    printf("============================================================\n\n");
-    printf("Program made by Gubarev Mikhail student of group 211-22\n\n");
-    printf("============================================================\n\n");
+    printf("========Program made by Gubarev Mikhail========\n\n");
     printf("This program is course work number 1, exercise 1 \n");
-    printf("About my limits for program and how to use: \nYou need enter a flag, and number after it\n");
+    printf("====================A few info: ===============\n");
     printf("Each flag need to be with lower register from this list <-h, -p, -s, -e, -a, -f>\n");
     printf("Number should be integer more than zero, non fractional, with less than 19-ns digit\n");
-    printf("And for flag <f> number should be less than 20, because factorial becomes really big\n");
-    printf("All else like in original task \n\n");
+    printf(">-h : Prints natural numbers in limit 100 separable to input\n");
+    printf(">-p : Says number is composite or prime\n");
+    printf(">-s : Separates number to every digit\n");
+    printf(">-e : Prints table of powers to input number: number < 11 \n");
+    printf(">-f : Prints factorial to input: number < 20 (because factorial becomes really big) \n");
+    
+    printf("\n>>> Program Output <<<\n");
 }
 
 int main(int argc, char *argv[]) 
