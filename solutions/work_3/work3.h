@@ -1,46 +1,63 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
-#include <limits.h>
-#include <math.h>
+#include <float.h>
 #include <ctype.h>
 
-const long double MIN_EPSILON_VAL = 0.00001,
+const long double MIN_EPSILON_VAL = 1e-9,
                   MAX_EPSILON_VAL = 1.0;
 
 const unsigned long long MAX_LL_VAL = 1e18, MAX_DIG_LL = 18;
 
 // check fractional number to correctivility
-enum epsilon_checkmark
+enum fractional_checkmark
 {
-    epsilon_correct,
-    epsilon_not_digit,
-    epsilon_overflow,
-    epsilon_underflow
+    fractional_correct,
+    fractional_not_digit,
+    fractional_overflow,
+    fractional_underflow
 };
 
-enum epsilon_checkmark check_epsilon(const long double epsilon)
+enum fractional_checkmark check_fractional(long double num)
 {
-    if (epsilon < MIN_EPSILON_VAL) { return epsilon_underflow; }
-    if (epsilon >= MAX_EPSILON_VAL) { return epsilon_overflow; }
-    return epsilon_correct;
+    if (num < MIN_EPSILON_VAL || num == 0) { return fractional_underflow; }
+    if (num >= LDBL_MAX || 2 * num * num >= LDBL_MAX) { return fractional_overflow; }
+    return fractional_correct;
 }
 
 
-enum epsilon_checkmark is_correct(const char *str_number, long double *resulting_number)
+enum fractional_checkmark get_fractional(char *str_number, long double *resulting_number)
 {
     char *endptr;
     *resulting_number = strtold(str_number, &endptr);
-
-    if (*str_number != '\0' && *endptr == '\0') { return check_epsilon(*resulting_number); }
+    
+    if (*str_number != '\0' && *endptr == '\0') { return check_fractional(*resulting_number); }
 
     resulting_number = NULL;
-    return epsilon_not_digit;
+    return fractional_not_digit;
 
 }
 
+// uzs = under zero support
+enum fractional_checkmark check_fractional_uzs(long double num)
+{
+    if (num == 0){return fractional_underflow;}
+    if (num >= LDBL_MAX || 2 * num * num >= LDBL_MAX) { return fractional_overflow; }
+    return fractional_correct;
+}
+
+enum fractional_checkmark get_fractional_uzs(char *str_number, long double *resulting_number)
+{
+    char *endptr;
+    *resulting_number = strtold(str_number, &endptr);
+    if (*str_number != '\0' && *endptr == '\0') { return check_fractional_uzs(*resulting_number); }
+    resulting_number = NULL;
+    return fractional_not_digit;
+
+}
 // check flags to correctivitily
 
 enum flag_chemark
@@ -104,6 +121,84 @@ enum digit_status get_ll_numbers(int argc, char* argv[], unsigned long long * nu
     return digit_status_correct;
 }
 
+// flag <-m>
+
+bool check_for_separable(long long first_number, long long second_number)
+{
+    return (first_number % second_number == 0);
+}
+
+// flag <-t>
+
+void swap(long double *a, long double *b) {
+    long double temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void sort_3_ld(long double* a, long double *b, long double *c)
+{
+    if (c < a) { swap(a, c); }
+    if (c < b) { swap(b, c); }
+    if (b < a) { swap(a, b); }
+}
+
+bool is_triangle(long double eps, long double a, long double b, long double c)
+{
+    char* end;
+    sort_3_ld(&a, &b, &c);
+    if((a * a + b * b) <= c * c + eps && (a * a + b * b) >= c * c - eps) { return true; }
+   return false;
+}
+
+
+// flag <-q>
+enum q_flag
+{
+    q_one_x,
+    q_two_x,
+    q_no_x,
+    q_error
+};
+void solve_quadratic(long double eps, long double a, long double b, long double c) {
+
+    long double discriminant = b * b - 4 * a * c;
+    if (discriminant < 0 && discriminant + eps >= 0 )
+    {
+        b += eps;
+        discriminant = 0; 
+    }
+
+    if (discriminant > 0) 
+    {
+        long double x1 = (-b + sqrt(discriminant)) / (2 * a);
+        long double x2 = (-b - sqrt(discriminant)) / (2 * a);
+        printf("The answer for koeff a = <%Lf>, b = <%Lf>, c = <%Lf> is : <%Lf> and <%Lf>\n", a,b,c,x1,x2);
+    } 
+    else if (discriminant == 0) {
+        long double x = -b / (2 * a);
+       printf("The answer for koeff a = <%Lf>, b = <%Lf>, c = <%Lf> is : <%Lf>\n", a,b,c,x);
+    } 
+    printf("There no answer for koeff a = <%Lf>, b = <%Lf>, c = <%Lf>\n", a,b,c);
+}
+
+void print_quadratic(int argc, char* argv[])
+{
+    long double e, a, b, c;
+    get_fractional(argv[2], &e);
+    get_fractional_uzs(argv[3], &a);
+    get_fractional_uzs(argv[4], &b);
+    get_fractional_uzs(argv[5], &c);
+
+    // all permutations
+    solve_quadratic(e, a, b, c);
+    solve_quadratic(e, a, c, b);
+    solve_quadratic(e, b, a, c);
+    solve_quadratic(e, b, c, a);
+    solve_quadratic(e, c, b, a);
+    solve_quadratic(e, c, a, b);
+}
+
 // check input to correctivitily
 
 enum input_checkmark
@@ -115,6 +210,7 @@ enum input_checkmark
     input_invalid_input,
     invalid_param
 };
+
 
 enum input_checkmark check_input_validate_n_run(int argc, char* argv[], char *flag)
 {
@@ -143,7 +239,17 @@ enum input_checkmark check_input_validate_n_run(int argc, char* argv[], char *fl
             printf("For this flag needed more numbers");
             return input_invalid_cnt_param;
         }
-        // checker for numbers
+        long double e, a, b, c;
+        enum fractional_checkmark state1 = get_fractional(argv[2], &e);
+        enum fractional_checkmark state2 = get_fractional_uzs(argv[3], &a);
+        enum fractional_checkmark state3 = get_fractional_uzs(argv[4], &b);
+        enum fractional_checkmark state4 = get_fractional_uzs(argv[5], &c);
+        if (state1 != fractional_correct || state2 != fractional_correct || 
+            state3 != fractional_correct || state4 != fractional_correct)
+            {
+                return input_invalid_input;
+            }
+        
         return input_correct;
         break;
     case 'm':
@@ -156,10 +262,9 @@ enum input_checkmark check_input_validate_n_run(int argc, char* argv[], char *fl
         enum digit_status nums_state = get_ll_numbers(argc, argv, &num1, &num2);
         if (nums_state != digit_status_correct) // there can check all situations
         {
-            printf("Error: Check input paramers, something wrong");
+            printf("Error: Check input paramers, something wrong\n");
             return input_invalid_input;
         }
-        //check_for_separable(num1, num2);
         return input_correct;
         break;
     case 't':
@@ -169,11 +274,25 @@ enum input_checkmark check_input_validate_n_run(int argc, char* argv[], char *fl
             return input_invalid_cnt_param;
         }
         // checker for numbers
+        long double num;
+        
+        enum fractional_checkmark n1 = get_fractional(argv[2], &num),
+                                  n2 = get_fractional(argv[3], &num),
+                                  n3 = get_fractional(argv[4], &num),
+                                  n4 = get_fractional(argv[5], &num);
+
+        if (n1 != fractional_correct || n2 != fractional_correct || n3 != fractional_correct || n4 != fractional_correct)
+        {
+            printf("Error: Check input paramers, something wrong with fractional numbers\n");
+            return input_invalid_input;
+        }
+
         return input_correct;
         break;
         break;
     default:
         break;
     }
+    return input_invalid_input;
     
 }
