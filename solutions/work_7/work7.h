@@ -187,15 +187,13 @@ enum a_statements to_ascii_and_cc(FILE *file, char* lexema, int CC)
     for (int i = 0; i < strlen(lexema); i++) 
     {
         
-            int num = (int) lexema[i];
+        int num = (int) lexema[i];
 
-            // debug option:  printf("%c %d\n",lexema[i],  num);
-            if (num > MAX_STRING_SIZE && num == INT_MAX) { return a_num_overflow; }
-            if (num < 0) { return a_num_underflow; }
-            
-            enum base_statements stm = write_to_file_in_cc(file, num, CC);
-            if (stm != base_correct) { return a_invalid_base_statement; }
-        
+         // debug option:  printf("%c %d\n",lexema[i],  num);
+        if (num < 0) { return a_num_underflow; }
+        enum base_statements stm = write_to_file_in_cc(file, num, CC);
+        if (stm != base_correct) { return a_invalid_base_statement; }
+		
         else { printf("%c", lexema[i]); }
     }
     return a_correct;
