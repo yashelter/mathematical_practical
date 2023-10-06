@@ -186,8 +186,7 @@ enum a_statements to_ascii_and_cc(FILE *file, char* lexema, int CC)
     char *endptr;
     for (int i = 0; i < strlen(lexema); i++) 
     {
-        if(is_latin_letter(lexema[i]))
-        {
+        
             int num = (int) lexema[i];
 
             // debug option:  printf("%c %d\n",lexema[i],  num);
@@ -196,7 +195,7 @@ enum a_statements to_ascii_and_cc(FILE *file, char* lexema, int CC)
             
             enum base_statements stm = write_to_file_in_cc(file, num, CC);
             if (stm != base_correct) { return a_invalid_base_statement; }
-        }
+        
         else { printf("%c", lexema[i]); }
     }
     return a_correct;
