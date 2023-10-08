@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define FIXED_SIZE 10
+#define FIXED_SIZE 5
 
-#define RANGE_BEG 10
-#define RANGE_END 10000
+#define RANGE_BEG 3
+#define RANGE_END 5
 
 enum input_statements
 {

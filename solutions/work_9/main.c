@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 
     int *array_a = (int *)malloc(sizeof(int) * l1);
     int *array_b = (int *)malloc(sizeof(int) * l2);
-
     int *array_c = (int *)malloc(sizeof(int) * l1);
 
     if (array_a == NULL || array_b == NULL || array_c == NULL)

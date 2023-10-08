@@ -65,12 +65,12 @@ int main()
         return 0;
     }
    
-    char str_num_in_cc[MAX_LENGTH];
-    char *ptr = str_num_in_cc;
 
     printf("\n\nThe maximum number in abs() from list is (in 10CC): %lld\n\n", max_number);
     for (int i = 9; i < 37; i += 9)
     {
+        char str_num_in_cc[MAX_LENGTH];
+        char *ptr = str_num_in_cc;
         enum input_statements num_st = ll_to_cc(max_number, i, ptr);
         if (num_st == input_correct) { printf("<< This number in base %d is : %s\n", i, ptr);}
         else { printf("<< Cant get number in base %d \n", i);}

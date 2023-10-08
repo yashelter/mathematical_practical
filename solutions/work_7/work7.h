@@ -59,10 +59,13 @@ enum a_statements
     a_invalid_base_statement
 };
 
+// при перевыделении памяти нужно исп времен переменную, в неё результат realloc проверить на null 
+// если null очистить память
 
 char* get_lexema(FILE *file, enum base_statements *ex_code)
 {
     char *lexema = (char *)malloc(MAX_STRING_SIZE * sizeof(char));
+    if (lexema == NULL) {return "";}//
     int c;
     size_t originalLength = 0;
     *ex_code = base_correct;

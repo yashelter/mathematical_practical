@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
         stm = flag_d(argv[2], out_path);
     }
 
-
+    free(out_path);
     if (stm == input_correct)
     {
         printf("<< All done correctly\n");
