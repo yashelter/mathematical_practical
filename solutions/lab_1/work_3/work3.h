@@ -181,7 +181,24 @@ void solve_quadratic(long double eps, long double a, long double b, long double 
     } 
     printf("There no answer for koeff a = <%Lf>, b = <%Lf>, c = <%Lf>\n", a,b,c);
 }
+int compare(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
 
+void swaps (long double * mas, int i, int j){
+    swap(mas + i, &mas[j]); // 
+}
+bool next_perm(long double *a, int n){
+    int j = n - 2;
+    while (j != -1 && a[j] >= a[j+1]) j--;
+    if (j == -1) return false;
+    int k = n - 1;
+    while (a[j] >= a[k]) k--;
+    swaps(a, j, k);
+    int l = j + 1, r = n - 1;
+    while (r - l > 0){
+        swaps(a, l++, r--);
+    }
+    return true;
+}
 void print_quadratic(int argc, char* argv[])
 {
     long double e, a, b, c;
@@ -190,13 +207,15 @@ void print_quadratic(int argc, char* argv[])
     get_fractional_uzs(argv[4], &b);
     get_fractional_uzs(argv[5], &c);
 
-    // all permutations
-    solve_quadratic(e, a, b, c);
-    solve_quadratic(e, a, c, b);
-    solve_quadratic(e, b, a, c);
-    solve_quadratic(e, b, c, a);
-    solve_quadratic(e, c, b, a);
-    solve_quadratic(e, c, a, b);
+    // all permutations 
+    long double mas[3] = {a, b, c};
+    qsort(mas, 3, sizeof(long double), compare);
+
+    solve_quadratic(e, mas[0], mas[1], mas[2]);
+
+    while (next_perm(mas, 3)) {
+            solve_quadratic(e, mas[0], mas[1], mas[2]);
+    }
 }
 
 // check input to correctivitily

@@ -55,29 +55,29 @@ long double simpsons_method(long double eps, long double a, long double b, long 
     long double last_val = 0.0L;
     long double curr_val = 2 * eps;
 
-    long double pow = 0.0L, f1 = 0.0L, f2 = 0.0L, x_0 = 0.0L;
+    long double h = 0.0L, f1 = 0.0L, f2 = 0.0L, x_0 = 0.0L;
 
     while (fabsl(curr_val - last_val) > eps)
     {
-        pow = (b - a) / n;
+        h = (b - a) / n;
         last_val = curr_val;
 
         curr_val = function(eps, a);
         curr_val += function(eps, b);
 
         for (int i = 1; i < n; i += 2) {
-            x_0 = a + i * pow;
+            x_0 = a + i * h;
             f1 += function(eps, x_0);
         }
 
         for (int i = 2; i < n - 1; i += 2) {
-            x_0 = a + i * pow;
+            x_0 = a + i * h;
             f2 += function(eps, x_0);
         }
         curr_val += 4.0L * f1;
         curr_val += 2.0L * f2;
 
-        curr_val *= (pow / 3.0L);
+        curr_val *= (h / 3.0L);
 
         f1 = 0.0L;
         f2 = 0.0L;

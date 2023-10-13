@@ -69,7 +69,7 @@ enum input_statements check_input(int argc, char* argv[], FILE **input, FILE **o
     if (err != 0 || input == NULL) { return input_wrong_file; }
 
     err = fopen_s(output, argv[2], "w");
-    if (err != 0 || output == NULL) { return input_wrong_file; }
+    if (err != 0 || output == NULL) { fclose(*input); return input_wrong_file; }
 
     return input_correct;
 } 
@@ -89,6 +89,8 @@ void skip_empty(FILE *file)
 char * get_lexema(FILE *file, int *min_base, enum input_statements *stm)
 {
     char *lexema = (char *)malloc(MAX_LENGTH * sizeof(char));
+    if (lexema == NULL) {*stm = input_invalid; return NULL;}
+
     int c; *min_base = 0; 
     bool flag = true;
     *stm = input_correct;
@@ -114,7 +116,7 @@ char * get_lexema(FILE *file, int *min_base, enum input_statements *stm)
     if (!flag) {*stm = input_invalid; return NULL;}
 
     lexema[originalLength] = '\0';
-
+    if (*min_base == 1) {*min_base = 2;}
     return lexema;
 }
 
@@ -132,12 +134,12 @@ enum input_statements cycle(FILE *input, FILE* output)
         
         char *lexema = get_lexema(input, &base, &stm);
 
-        if (stm != input_correct) { continue; }
+        if (stm != input_correct) { free(lexema); continue; }
         
         long long number = 0;
-        enum input_statements state = ss_to_base_10(lexema, base, &number);
+        stm = ss_to_base_10(lexema, base, &number);
 
-        if (stm != input_correct) {  continue; }
+        if (stm != input_correct) { free(lexema); continue; }
 
         fprintf(output, "<<< \"%s\" with min base <%d> in <10> CC is : \"%lld\"\n", lexema, base, number);
         

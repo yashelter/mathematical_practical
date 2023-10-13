@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define MAX_LENGTH 20
 
@@ -37,7 +38,7 @@ enum input_statements ss_to_base_10(char* str, int base, long long *result)
     long long sign = 1;
     int lwst = 0;
     
-    if (str[0] == '-')  { sign = -1; lwst = 1; }
+    if (str[0] == '-')  { sign = -1;  lwst = 1; }
 
     if (strlen(str) >= MAX_LENGTH) {return input_wrong_length; } 
 
@@ -70,33 +71,33 @@ int get_len(int n, int base)
 
 enum input_statements ll_to_cc(long long number, int base, char *result)
 {
-    int sign = 1, len = 0;
-
+    int r, sign = 1, len = 0;
     if (number < 0)
     {
         sign = -1;
         number = -number;
-        len = 1;
+        len ++;;
     }
 
     if (number != 0) { len += get_len(number, base); }
-    if (len >= MAX_LENGTH) {return input_wrong_length; }
-    else { result[0] = '0'; result[1] = '\0'; return input_correct;}
-
-    if (sign == -1) { result[0] = '-'; }
+    else {result[0] = '0'; result[1] = '\0'; return input_correct;}
+    
+    //if (len >= MAX_LENGTH) {return input_wrong_length; }
+    
     char *ptr = result + len;
     *ptr = '\0';
+    ptr--;
 
     while (number > 0)
     {
+        r = number % base;
+        *ptr = (r > 9) ? r - 10 + 'A' :r + '0';
         ptr--;
-        int digit = number % base;
-
-        if (digit > 9) { *ptr = digit - 10 + 'A'; }
-        else { *ptr = digit + '0'; }
         number /= base;
+        
     }
-    
+    if (sign == -1) { *ptr = '-'; }
+
     return input_correct;
 
 }

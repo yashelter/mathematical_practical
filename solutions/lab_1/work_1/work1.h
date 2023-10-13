@@ -173,6 +173,7 @@ void print_digits(const unsigned char* array)
         printf("%c ", *array);
         array++;
     }
+    free(array);
     printf("\n");
 }
 
@@ -309,6 +310,7 @@ void make_call(char status, char* str_number, unsigned long long ll_number)
         unsigned char * array = NULL;
         unsigned char **arr = &array;
         print_separable_digits_in_range(ll_number, *arr, check_separable_digits_in_range(ll_number, &arr));
+        free(arr);
         break;
     case 'p':
         print_primary_check_result(check_for_primary(ll_number), ll_number);
