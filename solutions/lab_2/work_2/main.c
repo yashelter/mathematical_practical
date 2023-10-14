@@ -8,9 +8,18 @@ int main()
     start = clock();
 
     /*demonstation 1*/
+    double result = geometric_middle(5, 2.0, 3.0, 4.0, 5.0, 6.0);
+    printf("%f \n", result);
+
+    result = geometric_middle(0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    printf("%f \n", result);
+
+    result = geometric_middle(3, 2.0, 3.0, 4.0, 5.0, 6.0);
+    printf("%f \n", result);
 
     
 
+    printf("\n\n");
     /*demostration 2 */
     printf("%Lf \n", b_pow_d(3.5, 3));
 
@@ -21,7 +30,6 @@ int main()
     printf("%Lf \n", b_pow_d(9999999, 9999));
     printf("%Lf \n", b_pow_d(9999999, 999999999));
     /**/
-
 
 
     end = clock();
