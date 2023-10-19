@@ -23,7 +23,7 @@ int main()
     /*demostration 2 */
     printf("%Lf \n", b_pow_d(3.5, 3));
 
-    printf("%Lf \n", b_pow_d(0, 3));
+    printf("%Lf \n", b_pow_d(0, 0));
 
     printf("%Lf \n", b_pow_d(-1, 3));
 
