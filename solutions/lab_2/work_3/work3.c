@@ -12,6 +12,8 @@ typedef enum
     correct,
     running_error,
     file_error,
+    memory_error,
+    all_nums,
 
 } statements;
 
@@ -26,12 +28,6 @@ bool is_equal_str(char *str1, char *str2, int l)
     }
     return true;
 }
-void swap_char(char *a, char *b)
-{
-    char temp = *a;
-    *a = *b;
-    *b = temp;
-}
 
 void move_char_left(char *str, int l) // str must be malloc'ed
 {
@@ -44,53 +40,148 @@ void move_char_left(char *str, int l) // str must be malloc'ed
         str[i] = str[i + 1];
     }
 }
-statements find_pattern(char *pattern, char *buffer, int l, FILE *file)
+
+void move_int_left(int *str, int l) // str must be malloc'ed
 {
-    // пытаемся заполнить buff
-    size_t bytes_read = fread(buffer, 1, l, file);
-    if (bytes_read != l)
+    if (l == 1)
     {
-        return file_error;
+        return;
     }
-    // теперь в buff лежит корректная строка = шаблону по длине
-    int string_n = 1, char_n = 1;
-    for (int i = 0; i < l; i++)
+    for (int i = 0; i < l - 1; i++)
     {
-        char_n++;;
-        if (buffer[i] == '\n') { string_n++; char_n = 1;}
+        str[i] = str[i + 1];
     }
-    if (is_equal_str(pattern, buffer, l)) 
-    { 
-        printf("Founded at line 1, at index 1\n");
-    }
-    char_n++;
-    int c;
-
-    while (true)
-    {
-        move_char_left(buffer, l);
-
-        if ((c = fgetc(file)) == EOF) { break; }
-        if (c == '\n') {string_n++; char_n = 1;}
-
-        char character = (char)c;
-        buffer[l-1] = character;
-
-        //printf("%s - \"%s\" \n\n", pattern, buffer);
-        if (is_equal_str(pattern, buffer, l)) 
-        { 
-            printf("Founded at line %d, at index %d\n", string_n, char_n - l);
-        }
-        char_n++;
-       
-    }
-    return correct;
 }
 
-statements find_all_patterns(char *pattern, int num, ...)
+typedef struct{
+    int *string_ns;
+    int *char_ns;
+    int cnt;
+    char *path;
+    statements stm;
+
+}Cell;
+
+statements find_pattern(char *pattern, char *buffer, int l, FILE *file, Cell **cell)
+{
+    if (l == 0)
+    { 
+        Cell *cel = (Cell *) malloc(sizeof(Cell));
+        cel->stm = all_nums;
+        *cell = cel;
+        return correct;
+    }
+
+    size_t bytes_read = 0;
+    int buffer_size = 2;
+
+    int *mas = (int *) malloc(sizeof(int) * l + 1);
+    if (mas == NULL) {return memory_error; }
+
+    int *str_i = (int *) malloc(sizeof(int) * buffer_size);
+    if (str_i == NULL) {free(mas); return memory_error; }
+
+    int *ind_i = (int *) malloc(sizeof(int) * buffer_size);
+    if (ind_i == NULL) { free(mas); free(str_i); return memory_error; }
+
+    char c;
+
+    int string_n = 1, char_n = 1;
+    int fake2 = 0;
+    for (int i = 0; i < l; i++)
+    {
+        if (pattern[i] == '\n') {fake2++;}
+    }
+    
+
+    mas[0] = 1;
+    while (bytes_read != l && (c = fgetc(file)) != EOF)
+    {
+        char_n++;;
+        if (c == '\n') {mas[bytes_read] = 1; string_n++; char_n = 1;}
+        else if (bytes_read > 0) {mas[bytes_read] = mas[bytes_read - 1] + 1; }
+        buffer[bytes_read] = c;
+        bytes_read++;
+    }
+
+    if (bytes_read != l) { free(mas); free(str_i); free(ind_i); return file_error; }
+    int cnt = 0;
+    if (is_equal_str(pattern, buffer, l)) 
+    { 
+        ind_i[cnt] = 1;
+        str_i[cnt] = 1;
+        cnt++;
+    }
+    //printf("Debug\n");
+    char_n++;
+    
+
+    while ((c = fgetc(file)) != EOF)
+    {
+        //if (c == '\0') { continue; }
+
+        move_char_left(buffer, l);
+        move_int_left(mas, l);
+
+        if (c == '\n') {string_n++; mas[l-1] = 1;}
+        else if (l -2 > 0) {mas[l-1] = mas[l-2] +1;}
+        else {mas[l-1] = mas[l-1] +1;}
+
+        buffer[l-1] = c;
+        if (is_equal_str(pattern, buffer, l)) 
+        {
+            if (buffer_size < cnt + 1)
+            {
+                buffer_size *= 2;
+                int* new_str_i = (int *) realloc(str_i, sizeof(int) * buffer_size);
+                if (new_str_i == NULL) {free(str_i); free(ind_i); return memory_error; }
+                str_i = new_str_i;
+
+                int *new_ind_i = (int *) realloc(ind_i, sizeof(int) * buffer_size);
+                if (new_ind_i == NULL) { free(str_i); free(ind_i); return memory_error; } 
+                ind_i = new_ind_i;
+            } 
+            ind_i[cnt] = l > 1 ? mas[0] - 1: mas[0];
+            str_i[cnt] = string_n - fake2;
+            cnt++;
+                
+            
+            //printf("Founded at line %d, at index %d\n", string_n, char_n - l);
+        }
+        char_n++;
+    }
+
+    Cell *cel = (Cell *) malloc(sizeof(Cell));
+    cel->char_ns = ind_i;
+    cel->cnt = cnt ;
+    cel->string_ns = str_i;
+    cel->stm = correct;
+    *cell = cel;
+
+    free(mas);
+    return correct;
+}
+void free_Cell(Cell * c)
+{
+    if (c == NULL) {return;}
+    free(c->char_ns);
+    free(c->string_ns);
+    free(c);
+}
+
+void free_Cells(Cell **c, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        free_Cell(c[i]);
+    }
+}
+
+statements find_all_patterns(Cell ***result, char *pattern, int num, ...)
 {
     int l = strlen(pattern);
     char *buffer = (char *)malloc(sizeof(char) * (l + 1));
+
     if (buffer == NULL)
     {
         return running_error;
@@ -99,26 +190,42 @@ statements find_all_patterns(char *pattern, int num, ...)
     va_list args;
     va_start(args, num);
 
+    Cell ** cells = (Cell **) malloc(sizeof(Cell *) * num);
+
     for (int i = 0; i < num; i++)
     {
         char *path = va_arg(args, char *);
         FILE *file = fopen(path, "r");
         if (file == NULL)
         {
-            printf("Error : with file %s\n", path);
-            continue;
+            free_Cells(cells, num);
+            return file_error;
         }
-        printf("<< Opened file at path: %s\n\n", path);
-        statements stm = find_pattern(pattern, buffer, l, file);
-        if (stm != correct){
-            printf("Error : something with input was invalid \n");
+
+        //printf("<< Opened file at path: %s\n\n", path); // Debug option
+
+        Cell *local_res = NULL;
+
+        statements stm = find_pattern(pattern, buffer, l, file, &local_res);
+
+        if (stm != correct)
+        {
+            free_Cells(cells, num);
+            free_Cell(local_res);
+            return stm;
         }
+
+        local_res->path = path;
+        cells[i] = local_res;
+
         fclose(file);
-        printf("\n");
+
         // printf("Arg %d: %s\n", i, path);
     }
 
     va_end(args);
     free(buffer);
+    *result = cells;
+
     return correct;
 }
