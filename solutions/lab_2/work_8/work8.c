@@ -122,7 +122,6 @@ char *sum_nums(statements *stm, int base, int count, ...)
     {
         *stm = memory_error;
         return NULL; 
-        // дописать enum
     }
 
     answer[0] = '0';
