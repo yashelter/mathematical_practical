@@ -3,30 +3,49 @@
 #include <stdarg.h>
 
 bool isConvexPolygon(int n, ...) {
+    double eps = 1e-8;
     va_list points;
     va_start(points, n);
+    if (n < 3) { return false; }
+
+    double x_, y_;
     double x1 = va_arg(points, double);
     double y1 = va_arg(points, double);
-    double x2 = va_arg(points, double);
-    double y2 = va_arg(points, double);
-    double prevAreaSign = 0;
 
-    for(int i = 2; i <= n; i++) {
-        double x3 = va_arg(points, double);
-        double y3 = va_arg(points, double);
+    x_ = x1; y_=y1;
+    double x2, y2;
+    double pref_square = 0;
+    double first_no_zero = 0;
+    for(int i = 1; i <= n; i++) 
+    {
 
-        double areaSign = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
-        if(i == 2) prevAreaSign = areaSign;
+        x2 = va_arg(points, double);
+        y2 = va_arg(points, double);
+        double areaSign = x1 * y2 - x2 * y1;
 
-        if(areaSign * prevAreaSign < 0) {
+        if (i == 1) pref_square = areaSign;
+        if (first_no_zero == 0 && areaSign != 0 ) { first_no_zero = areaSign;}
+
+        // printf("area %.20f\n", areaSign);
+        if (first_no_zero * areaSign < 0 && first_no_zero * (areaSign + eps) > 0) {areaSign += eps;}
+        if (pref_square * areaSign < 0 && pref_square * (areaSign + eps) > 0) {areaSign += eps;}
+
+        if(areaSign * pref_square < 0 || first_no_zero * areaSign < 0) 
+        {
             va_end(points);
             return false;
         }
 
         x1 = x2; y1 = y2;
-        x2 = x3; y2 = y3;
     }
+    double areaSign = x1 * y_ - x_ * y1;
 
+    if(areaSign * pref_square < 0) 
+    {
+        va_end(points);
+        return false;
+    }
+    
     va_end(points);
     return true;
 }
@@ -36,23 +55,24 @@ double polynomialValue(double x, int n, ...) {
     va_start(coefficients, n);
 
     double result = 0;
-    for(int i = n; i >= 0; i--) {
+    for(int i = 0; i < n; i++) 
+    {
+        result *= x;
+
         double coeff = va_arg(coefficients, double);
-        double value = 1;
-        for(int j = 0; j < i; j++) value *= x;
-        result += coeff * value;
+        result += coeff;
     }
 
     va_end(coefficients);
     return result;
 }
 
-int main() {
-    // Тест для первой функции
-    printf("Is Convex: %d\n", isConvexPolygon(4, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0)); // Должно быть 1 (выпуклый квадрат)
+int main() 
+{
 
-    // Тест для второй функции
-    printf("Polynomial Value: %lf\n", polynomialValue(2, 2, 1.0, -3.0, 2.0)); // Должно быть 2 (многочлен x^2 - 3x + 2 в точке x=2)
+    printf("Is Convex: %d\n", isConvexPolygon(4, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0, 1)); // Должно быть 1 (выпуклый квадрат)
+
+    printf("Polynomial Value: %lf\n", polynomialValue(2, 1, 2.0, -3, 2)); // 2 ( x^2 - 3x + 2 в точке x=2)
 
     return 0;
 }
