@@ -42,7 +42,7 @@ statements to_roman(int num, char **result)
 
     RomanDigit romans[14] = {{"X̅", 10000}, {"M", 1000}, {"CM", 900}, {"D", 500}, {"CD", 400}, {"C", 100}, {"XC", 90}, {"L", 50}, {"XL", 40}, {"X", 10}, {"IX", 9}, {"V", 5}, {"IV", 4}, {"I", 1}};
 
-    int buffer_size = 4, real_size = 0;
+    int buffer_size = 4, real_size = 0, points = 0;
     *result = (char *)malloc(sizeof(char) * buffer_size);
 
     if (*result == NULL)
@@ -52,13 +52,17 @@ statements to_roman(int num, char **result)
 
     if (num < 0)
     {
-        strcat(*result, "-");
+        (*result)[points] = '-';
         num *= -1;
         real_size++;
+        points++;
     }
     if (num == 0)
     {
-        strcat(*result, "ZERO - Nan finite");
+       (*result)[points++] = 'N';
+       (*result)[points++] = 'a';
+       (*result)[points++] = 'n';
+       (*result)[points++] = '\0';
         return correct;
     }
 
@@ -78,7 +82,10 @@ statements to_roman(int num, char **result)
                 buffer_size *= 2;
                 *result = new_buf;
             }
-            strcat(*result, romans[i].symbol);
+            (*result)[points++] = romans[i].symbol[0];
+            if (strlen(romans[i].symbol) == 2){
+                (*result)[points++] = romans[i].symbol[1];
+            }
             num -= romans[i].value;
         }
     }
@@ -262,11 +269,12 @@ statements cc_to_10th(char *str, int base, long long *result, bool upcase)
 statements print_memory_dump(const void *value, int size, char **res)
 {
     const unsigned char *bytes = (const unsigned char *)value;
+
     int buffer_size = (sizeof(char) * (size * 9));
     int chars_written = 0;
     *res = (char *) malloc(buffer_size);
 
-    for (int i = 0; i < size; i++)
+    for (int i = size-1; i >=0; i--)
     {
         for (int bit = 7; bit >= 0; bit--)
         {

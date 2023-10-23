@@ -1,7 +1,7 @@
 #include "functions.c"
-#define MAX_L 100
+#define MAX_L 1000
 
-char **split_perc(const char*str, int *point)
+char **split_perc(char*str, int *point)
 {
     *point = -1;
     int l = strlen(str);
@@ -23,10 +23,10 @@ char **split_perc(const char*str, int *point)
     while (pos_end < l && str[pos_end] != ' ') {pos_end++;};
 
     //here
-    char *s1 = (char*) malloc(sizeof(char) * (i));
+    char *s1 = (char*) malloc(sizeof(char) * (i + 1));
     if (s1 == NULL) {return NULL;}
 
-    char *s2 = (char*) malloc(sizeof(char) * (pos_end - (i + 2) + 1));
+    char *s2 = (char*) malloc(sizeof(char) * (pos_end - i + 1));
     if (s2 == NULL) {free(s1); return NULL;}
 
     char *s3 = (char*) malloc(sizeof(char) * (l - pos_end + 1));
@@ -36,7 +36,7 @@ char **split_perc(const char*str, int *point)
     {
         s1[j] = str[j];
     }
-    s1[i+1] = '\0';
+    s1[i] = '\0';
 
     int k = 0;
     for (int j = i; j < pos_end; j++) {
@@ -70,7 +70,7 @@ char **split_perc(const char*str, int *point)
 
 }
 
-statements try_execute(const char *format, va_list *ptr, char **res)
+statements try_execute(char *format, va_list *ptr, char **res)
 {
     if (strcmp(format, "%Ro") == 0)
     {
@@ -138,7 +138,7 @@ statements try_execute(const char *format, va_list *ptr, char **res)
     }
     if (strcmp(format, "%mf") == 0)
     {
-        double num = va_arg(*ptr, double);
+        float num = va_arg(*ptr, double);
         statements stm = print_memory_dump(&num, sizeof(float), res);
         return stm;
     }
@@ -146,7 +146,7 @@ statements try_execute(const char *format, va_list *ptr, char **res)
     
 }
 
-int oversprintf(const char** str, char* format, ...) 
+int oversprintf(char** str, char* format, ...) 
 {
     va_list ptr;
     va_start(ptr, format);
@@ -159,33 +159,53 @@ int oversprintf(const char** str, char* format, ...)
 
     char* right = NULL;
     char ** res = split_perc(format, &pos);
-
+    
     while (pos != -1 && res != NULL && written < MAX_L)
     {
         char *left = res[0], *mid = res[1];
         right = res[2];
 
         char *result = NULL;
-
         written = vsnprintf(buffer + written, MAX_L - written, left, ptr) + written;
+        
         if (strlen(mid) > 0) 
         {
             statements printed = try_execute(mid, &ptr, &result);
             if (printed == correct){
                 written += vsnprintf(buffer + written, MAX_L - written, result, ptr);
+                free(result);
             }
             else{
                  written += vsnprintf(buffer + written, MAX_L - written, mid, ptr);
             }          
         }
-        res = split_perc(right, &pos);
-    }
-    if (right != NULL)
-    {
-         written = vsnprintf(buffer + written, MAX_L - written, right, ptr) + written;
-    }
+        if (res[0] != NULL) {free(res[0]);}
+        if (res[1] != NULL) {free(res[1]);}
 
+        if (strlen(right) > 0)
+        {
+            char **new_res = split_perc(right, &pos);
+            if (res[2] != NULL) {free(res[2]);}
+            free(res);
+            res = NULL;
+            right = NULL;
+
+            res = new_res;
+        }
+        else
+        {
+            break;
+        }
+    }
     va_end(ptr);
-    printf("%s\n", buffer);
+
+    *str = (char *) malloc(sizeof(char) * (written + 1));
+
+    for (int i = 0; i < written; i++)
+    {
+        (*str)[i] = buffer[i];
+    }
+    
+    //vsnprintf(*str, MAX_L, buffer, NULL);   
     return 0;
 }

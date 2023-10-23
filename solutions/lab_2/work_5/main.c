@@ -4,6 +4,8 @@
 int main() {
     
     //printf("%s", res);
-    oversprintf(NULL, "This is %mi in Roman %Ro really?", 512, 512);
+    char * res = "";
+    oversprintf(&res, "This is %mf in Roman %Ro really? %d", 151561.15151, 512, 1);
+    printf("\n%s\n", res);
     return 0;
 }
