@@ -1,4 +1,5 @@
 #include "functions.c"
+
 #define MAX_L 1000
 
 char **split_perc(char*str, int *point)
@@ -20,7 +21,7 @@ char **split_perc(char*str, int *point)
     }
 
     int pos_end = i+1;
-    while (pos_end < l && str[pos_end] != ' ') {pos_end++;};
+    while (pos_end < l && str[pos_end] != ' ' && str[pos_end] != '%' && !not_digit(str[pos_end])) {pos_end++;};
 
     //here
     char *s1 = (char*) malloc(sizeof(char) * (i + 1));
@@ -70,12 +71,13 @@ char **split_perc(char*str, int *point)
 
 }
 
-statements try_execute(char *format, va_list *ptr, char **res)
+statements try_execute(char *format, va_list *ptr, char **res, int written)
 {
     if (strcmp(format, "%Ro") == 0)
     {
         int num = va_arg(*ptr, int);
-        statements stm = to_roman(num, res);
+        
+        statements stm = to_roman(num, &res);
         return stm;
     }
     if (strcmp(format, "%Zr") == 0)
@@ -99,6 +101,7 @@ statements try_execute(char *format, va_list *ptr, char **res)
         statements stm = _10th_to_cc(num, base, res, true);
         return stm;
     }
+    
     if (strcmp(format, "%to") == 0 || strcmp(format, "%TO") == 0 )
     {
         char* str = va_arg(*ptr, char*);
@@ -142,6 +145,12 @@ statements try_execute(char *format, va_list *ptr, char **res)
         statements stm = print_memory_dump(&num, sizeof(float), res);
         return stm;
     }
+    if (strcmp(format, "%n") == 0)
+    {
+        int* num = va_arg(*ptr, int*);
+        *num = written;
+        return correct;
+    }
     return nah_executed;
     
 }
@@ -160,7 +169,7 @@ int oversprintf(char** str, char* format, ...)
     char* right = NULL;
     char ** res = split_perc(format, &pos);
     
-    while (pos != -1 && res != NULL && written < MAX_L)
+    while (res != NULL && written < MAX_L)
     {
         char *left = res[0], *mid = res[1];
         right = res[2];
@@ -170,7 +179,7 @@ int oversprintf(char** str, char* format, ...)
         
         if (strlen(mid) > 0) 
         {
-            statements printed = try_execute(mid, &ptr, &result);
+            statements printed = try_execute(mid, &ptr, &result, written);
             if (printed == correct){
                 written += vsnprintf(buffer + written, MAX_L - written, result, ptr);
                 free(result);
@@ -179,13 +188,13 @@ int oversprintf(char** str, char* format, ...)
                  written += vsnprintf(buffer + written, MAX_L - written, mid, ptr);
             }          
         }
-        if (res[0] != NULL) {free(res[0]);}
-        if (res[1] != NULL) {free(res[1]);}
+        if (res[0] != NULL) {free(res[0]); res[0] = NULL;}
+        if (res[1] != NULL) {free(res[1]); res[1] = NULL;}
 
         if (strlen(right) > 0)
         {
             char **new_res = split_perc(right, &pos);
-            if (res[2] != NULL) {free(res[2]);}
+            if (res[2] != NULL) {free(res[2]); res[2] = NULL;}
             free(res);
             res = NULL;
             right = NULL;
@@ -194,12 +203,22 @@ int oversprintf(char** str, char* format, ...)
         }
         else
         {
+            if (right != NULL) {free(res[2]);res[2] = NULL;}
             break;
         }
+    }
+    
+    if (res != NULL) 
+    { 
+        if (res[0] != NULL) {free(res[0]);}
+        if (res[1] != NULL) {free(res[1]);}
+        if (res[2] != NULL) {free(res[2]);}
+        free(res); 
     }
     va_end(ptr);
 
     *str = (char *) malloc(sizeof(char) * (written + 1));
+    if (str == NULL) {return -1;}
 
     for (int i = 0; i < written; i++)
     {
@@ -207,5 +226,78 @@ int oversprintf(char** str, char* format, ...)
     }
     
     //vsnprintf(*str, MAX_L, buffer, NULL);   
+    return 0;
+}
+
+
+
+int overfprintf(FILE* file, char* format, ...) 
+{    
+    // Проверяем, удалось ли открыть файл
+    if (file == NULL) { return -1; }
+    va_list ptr;
+    va_start(ptr, format);
+
+    char buffer_s[MAX_L];
+    char *buffer = buffer_s;
+
+    int written = 0;
+    int pos;
+
+    char* right = NULL;
+    char ** res = split_perc(format, &pos);
+    
+    while (res != NULL && written < MAX_L)
+    {
+        char *left = res[0], *mid = res[1];
+        right = res[2];
+
+        char *result = NULL;
+        written = vsnprintf(buffer + written, MAX_L - written, left, ptr) + written;
+        
+        if (strlen(mid) > 0) 
+        {
+            statements printed = try_execute(mid, &ptr, &result, written);
+            if (printed == correct){
+                written += vsnprintf(buffer + written, MAX_L - written, result, ptr);
+                free(result);
+            }
+            else{
+                 written += vsnprintf(buffer + written, MAX_L - written, mid, ptr);
+            }          
+        }
+        if (res[0] != NULL) {free(res[0]); res[0] = NULL;}
+        if (res[1] != NULL) {free(res[1]); res[1] = NULL;}
+
+        if (strlen(right) > 0)
+        {
+            char **new_res = split_perc(right, &pos);
+            if (res[2] != NULL) {free(res[2]); res[2] = NULL;}
+            free(res);
+            res = NULL;
+            right = NULL;
+
+            res = new_res;
+        }
+        else
+        {
+            if (right != NULL) {free(res[2]);res[2] = NULL;}
+            break;
+        }
+    }
+    
+    if (res != NULL) 
+    { 
+        if (res[0] != NULL) {free(res[0]);}
+        if (res[1] != NULL) {free(res[1]);}
+        if (res[2] != NULL) {free(res[2]);}
+        free(res); 
+    }
+    va_end(ptr);
+
+    fprintf(file, "%s", buffer);
+    fclose(file);
+
+
     return 0;
 }

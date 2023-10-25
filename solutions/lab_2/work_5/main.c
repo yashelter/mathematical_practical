@@ -1,11 +1,14 @@
 #include "work5.c"
 
-
 int main() {
     
     //printf("%s", res);
     char * res = "";
-    oversprintf(&res, "This is %mf in Roman %Ro really? %d", 151561.15151, 512, 1);
-    printf("\n%s\n", res);
+    int ab = 5;
+    oversprintf(&res, "\nThis is %n %Ro %Ro in Roman  really?", &ab, 5, 4);
+
+    FILE *file = fopen("out.txt", "w");
+    overfprintf(file, "This is %Ro-%Ro in Roman  really?", 5, 4);
+    printf("%s %d\n", res, ab);
     return 0;
 }
