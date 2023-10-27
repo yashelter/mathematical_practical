@@ -21,7 +21,7 @@ char **split_perc(char*str, int *point)
     }
 
     int pos_end = i+1;
-    while (pos_end < l && str[pos_end] != ' ' && str[pos_end] != '%' && !not_digit(str[pos_end])) {pos_end++;};
+    while (pos_end < l && str[pos_end] != ' ' && str[pos_end] != '%' && str[pos_end] != '\n' && str[pos_end] != '\t'&& !not_digit(str[pos_end])) {pos_end++;};
 
     //here
     char *s1 = (char*) malloc(sizeof(char) * (i + 1));
@@ -173,7 +173,7 @@ int oversprintf(char** str, char* format, ...)
     {
         char *left = res[0], *mid = res[1];
         right = res[2];
-
+        
         char *result = NULL;
         written = vsnprintf(buffer + written, MAX_L - written, left, ptr) + written;
         
@@ -181,8 +181,10 @@ int oversprintf(char** str, char* format, ...)
         {
             statements printed = try_execute(mid, &ptr, &result, written);
             if (printed == correct){
+                
                 written += vsnprintf(buffer + written, MAX_L - written, result, ptr);
                 free(result);
+                
             }
             else{
                  written += vsnprintf(buffer + written, MAX_L - written, mid, ptr);
@@ -190,16 +192,23 @@ int oversprintf(char** str, char* format, ...)
         }
         if (res[0] != NULL) {free(res[0]); res[0] = NULL;}
         if (res[1] != NULL) {free(res[1]); res[1] = NULL;}
+        
 
         if (strlen(right) > 0)
         {
             char **new_res = split_perc(right, &pos);
+            if (new_res == NULL)
+            {
+                written = vsnprintf(buffer + written, MAX_L - written, right, ptr) + written;
+            }
+
             if (res[2] != NULL) {free(res[2]); res[2] = NULL;}
             free(res);
             res = NULL;
             right = NULL;
 
             res = new_res;
+
         }
         else
         {
@@ -215,6 +224,7 @@ int oversprintf(char** str, char* format, ...)
         if (res[2] != NULL) {free(res[2]);}
         free(res); 
     }
+
     va_end(ptr);
 
     *str = (char *) malloc(sizeof(char) * (written + 1));
@@ -251,7 +261,7 @@ int overfprintf(FILE* file, char* format, ...)
     {
         char *left = res[0], *mid = res[1];
         right = res[2];
-
+        
         char *result = NULL;
         written = vsnprintf(buffer + written, MAX_L - written, left, ptr) + written;
         
@@ -259,8 +269,10 @@ int overfprintf(FILE* file, char* format, ...)
         {
             statements printed = try_execute(mid, &ptr, &result, written);
             if (printed == correct){
+                
                 written += vsnprintf(buffer + written, MAX_L - written, result, ptr);
                 free(result);
+                
             }
             else{
                  written += vsnprintf(buffer + written, MAX_L - written, mid, ptr);
@@ -268,16 +280,23 @@ int overfprintf(FILE* file, char* format, ...)
         }
         if (res[0] != NULL) {free(res[0]); res[0] = NULL;}
         if (res[1] != NULL) {free(res[1]); res[1] = NULL;}
+        
 
         if (strlen(right) > 0)
         {
             char **new_res = split_perc(right, &pos);
+            if (new_res == NULL)
+            {
+                written = vsnprintf(buffer + written, MAX_L - written, right, ptr) + written;
+            }
+
             if (res[2] != NULL) {free(res[2]); res[2] = NULL;}
             free(res);
             res = NULL;
             right = NULL;
 
             res = new_res;
+
         }
         else
         {
@@ -293,6 +312,7 @@ int overfprintf(FILE* file, char* format, ...)
         if (res[2] != NULL) {free(res[2]);}
         free(res); 
     }
+
     va_end(ptr);
 
     fprintf(file, "%s", buffer);

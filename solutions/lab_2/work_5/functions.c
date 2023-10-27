@@ -149,7 +149,7 @@ statements zeckendorf_look(unsigned int number, char **result)
     }
 
     *result = (char *)malloc(sizeof(char) * (n + 2));
-    printf("%d", n);
+    //printf("%d", n);
     for (int i = 0; i < n + 1; i++)
     {
         (*result)[i] = '0';
@@ -248,8 +248,6 @@ statements cc_to_10th(char *str, int base, long long *result, bool upcase)
     bool sign = false;
 
     if (str[0] == '-') { sign = true; }
-    
-    long long multiplier = 1;
 
     for (int i = (sign ? 1: 0); i < len; i++)
     {
