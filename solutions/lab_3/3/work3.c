@@ -77,10 +77,15 @@ void print_employers(Employee *empls, int cnt)
     printf("\n");
 }
 
-statements validate_params(int argc, char *argv[], FILE** file)
+statements validate_params(int argc, char *argv[], FILE** file, char *flag)
 {
-    if (argc < 2) {return invalid_input; }
+    if (argc < 3 || strlen(argv[2]) != 2) {return invalid_input; }
+    char a = argv[2][0], b = argv[2][1];
+    if (a != '/' && a != '-') {return invalid_input; }
+    if (b != 'd' && b != 'a') {return invalid_input; }
+    *flag = b;
     *file = fopen(argv[1], "r");
+    
     if (*file == NULL) {
         return invalid_file;
     }

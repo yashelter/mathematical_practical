@@ -1,17 +1,19 @@
 #include "work3.c"
 
-int main(int argc, char*argv[])
+int main(int argc, char *argv[])
 {
     FILE *file;
-    statements stm = validate_params(argc, argv, &file);
-    if(stm != correct){
+    char flag;
+    statements stm = validate_params(argc, argv, &file, &flag);
+    if (stm != correct)
+    {
         print_err(stm);
         return 0;
     }
-    
+
     int buf = 2, cnt = 0;
 
-    Employee *employers = (Employee *) malloc(sizeof(Employee) * buf);
+    Employee *employers = (Employee *)malloc(sizeof(Employee) * buf);
     if (employers == NULL)
     {
         fclose(file);
@@ -22,10 +24,11 @@ int main(int argc, char*argv[])
     Employee new_emp;
     while (scan_eployee(file, &new_emp) == correct)
     {
-        printf("Cотрудник %d %s %s %lf\n", new_emp.id, new_emp.name, new_emp.sur_name, new_emp.money);
-        if (buf <= cnt){
+        printf("Employee %d %s %s %lf\n", new_emp.id, new_emp.name, new_emp.sur_name, new_emp.money);
+        if (buf <= cnt)
+        {
             buf *= 2;
-            Employee *new_employers = (Employee *) realloc(employers, sizeof(Employee) * buf);
+            Employee *new_employers = (Employee *)realloc(employers, sizeof(Employee) * buf);
 
             if (new_employers == NULL)
             {
@@ -37,10 +40,19 @@ int main(int argc, char*argv[])
             employers = new_employers;
         }
         employers[cnt] = new_emp;
+        cnt++;
     }
-    
-
-    // Закрываем файл
     fclose(file);
 
+    if (flag == 'd')
+    {
+        sort_by_decrease(&employers, cnt);
+    }
+    else
+    {
+        sort_by_increase(&employers, cnt);
+    }
+
+    print_employers(employers, cnt);
+    // Закрываем файл
 }

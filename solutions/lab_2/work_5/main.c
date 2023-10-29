@@ -9,7 +9,7 @@ int main() {
     //printf("%s %d\n", res, ab);
     //zeckendorf_look(128, &res);
 
-    oversprintf(&res, "\n 010101011?\n %Zr fa ads fdsa fasd", 33);
+    oversprintf(&res, "\n%s\n %Cv %TO", "test\n",  -255, 16, "-123", 10);
     printf("%s", res);
 
     //FILE *file = fopen("out.txt", "w");

@@ -5,8 +5,24 @@ void print_cell(Cell *c)
 {
     printf("\n");
     printf("For file :  %s \n", c->path);
-    if (c->stm == all_nums){
-        printf("All will be substing");
+    if (c->stm == all_nums)
+    {
+        int cnt = 1;
+        char cu;
+        FILE *file = fopen(c->path, "r");
+        if (file == NULL) {return;}
+        int stri = 1;
+
+        while ((cu = fgetc(file)) != EOF)
+        {
+           printf("At string %d — at position %d\n", stri, cnt);
+           if (cu == '\n'){
+            stri += 1;
+            cnt = 0;
+           }
+           cnt++;
+        }
+        return;
     }
     if (c->stm == correct)
     {
@@ -24,7 +40,7 @@ int main()
 {
     Cell **cells;
     int n = 2;
-    statements stm = find_all_patterns(&cells, "a", n, "in.txt", "in2.txt");
+    statements stm = find_all_patterns(&cells, "  ", 1, "in.txt", "in2.txt");
     if (stm == correct)
     {
         for (int i = 0; i < n; i++)

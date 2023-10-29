@@ -141,7 +141,7 @@ statements find_pattern(char *pattern, char *buffer, int l, FILE *file, Cell **c
                 if (new_ind_i == NULL) { free(str_i); free(ind_i); return memory_error; } 
                 ind_i = new_ind_i;
             } 
-            ind_i[cnt] = l > 1 ? mas[0] - 1: mas[0];
+            ind_i[cnt] = l > 1 ? mas[0]: mas[0];
             str_i[cnt] = string_n - fake2;
             cnt++;
                 
@@ -180,6 +180,7 @@ void free_Cells(Cell **c, int n)
 statements find_all_patterns(Cell ***result, char *pattern, int num, ...)
 {
     int l = strlen(pattern);
+    
     char *buffer = (char *)malloc(sizeof(char) * (l + 1));
 
     if (buffer == NULL)

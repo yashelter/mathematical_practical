@@ -102,12 +102,31 @@ statements try_execute(char *format, va_list *ptr, char **res, int written)
         return stm;
     }
     
-    if (strcmp(format, "%to") == 0 || strcmp(format, "%TO") == 0 )
+    if (strcmp(format, "%to") == 0)
     {
         char* str = va_arg(*ptr, char*);
         int base = va_arg(*ptr, int);
         long long _res;
-        statements stm = cc_to_10th(str, base, &_res, strcmp(format, "%TO") == 0);
+        statements stm = cc_to_10th(str, base, &_res, false);
+        if (stm != correct) { return stm; }
+        
+        int buffer_size = snprintf(NULL, 0, "%lld", _res);
+        char *temp = (char *)malloc(buffer_size + 1);
+
+        if (str == NULL) {
+            return memory_error;
+        }
+
+        snprintf(temp, buffer_size + 1, "%lld", _res);
+        *res = temp;
+        return correct;
+    }
+    if (strcmp(format, "%TO") == 0 )
+    {
+        char* str = va_arg(*ptr, char*);
+        int base = va_arg(*ptr, int);
+        long long _res;
+        statements stm = cc_to_10th(str, base, &_res, true);
         if (stm != correct) { return stm; }
         
         int buffer_size = snprintf(NULL, 0, "%lld", _res);
