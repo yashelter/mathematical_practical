@@ -286,7 +286,8 @@ statements print_memory_dump(const void *value, int size, char **res)
     return correct;
 }
 
-bool not_digit(char s){
+bool not_digit(char s)
+{
     s = tolower(s);
     return  0 <= (s - 'a') && (s-'a') >= 26;
 }

@@ -22,7 +22,6 @@ char *format_num(char *str)
     ll l = strlen(str);
 
     while (str[ind] == '0') ind++;
-    // ask here about mem
     if (ind == l)
     {
         str[0] = '0';
@@ -48,11 +47,13 @@ void move_right_char(char **str, int l)
     }
 }
 
-int get_num(char d){
+int get_num(char d)
+{
     return isdigit(d) ? d - '0' : tolower(d) + 10 - 'a';
 }
 
-ll max(ll a, ll b ){
+ll max(ll a, ll b )
+{
     if (a > b) {return a;}
     return b;
 }
@@ -109,7 +110,8 @@ char *sum_num(statements **stm, int base, char *a, char *b)
 
     result[max_l] = '\0';
     **stm = correct;
-
+    free(a);
+    
     return result;
 }
 
@@ -143,6 +145,7 @@ char *sum_nums(statements *stm, int base, int count, ...)
     }
 
     va_end(ptr);
+
     format_num(answer);
     return answer;
 }

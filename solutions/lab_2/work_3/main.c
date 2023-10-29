@@ -3,6 +3,8 @@
 
 void print_cell(Cell *c)
 {
+    if (c == NULL) { return; }
+
     printf("\n");
     printf("For file :  %s \n", c->path);
     if (c->stm == all_nums)
@@ -11,6 +13,7 @@ void print_cell(Cell *c)
         char cu;
         FILE *file = fopen(c->path, "r");
         if (file == NULL) {return;}
+
         int stri = 1;
 
         while ((cu = fgetc(file)) != EOF)
@@ -40,16 +43,17 @@ int main()
 {
     Cell **cells;
     int n = 2;
-    statements stm = find_all_patterns(&cells, "  ", 1, "in.txt", "in2.txt");
+    statements stm = find_all_patterns(&cells, "\n", n, "in.txt", "in2.txt");
     if (stm == correct)
     {
         for (int i = 0; i < n; i++)
         {
             print_cell(cells[i]);
         }
+        free_Cells(cells, n);
     }
-    else{
-        printf("Error occured");
+    else
+    {
+        printf("Error occured or input invalid (empty file - invalid)\n");
     }
-    free_Cells(cells, n);
 }

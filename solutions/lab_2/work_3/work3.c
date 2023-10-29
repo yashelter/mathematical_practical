@@ -167,10 +167,15 @@ void free_Cell(Cell * c)
     free(c->char_ns);
     free(c->string_ns);
     free(c);
+    c = NULL;
 }
 
 void free_Cells(Cell **c, int n)
 {
+    if (c == NULL)
+    {
+        return;
+    }
     for (int i = 0; i < n; i++)
     {
         free_Cell(c[i]);
@@ -192,11 +197,16 @@ statements find_all_patterns(Cell ***result, char *pattern, int num, ...)
     va_start(args, num);
 
     Cell ** cells = (Cell **) malloc(sizeof(Cell *) * num);
+    for (int i = 0; i < num; i++)
+    {
+        cells[i] = NULL;
+    }
 
     for (int i = 0; i < num; i++)
     {
         char *path = va_arg(args, char *);
         FILE *file = fopen(path, "r");
+        
         if (file == NULL)
         {
             free_Cells(cells, num);
@@ -206,20 +216,20 @@ statements find_all_patterns(Cell ***result, char *pattern, int num, ...)
         //printf("<< Opened file at path: %s\n\n", path); // Debug option
 
         Cell *local_res = NULL;
-
         statements stm = find_pattern(pattern, buffer, l, file, &local_res);
 
+        fclose(file);
         if (stm != correct)
         {
-            free_Cells(cells, num);
-            free_Cell(local_res);
-            return stm;
+            cells[i] = NULL;
+            //free_Cell(local_res);
+            continue;
         }
 
         local_res->path = path;
         cells[i] = local_res;
 
-        fclose(file);
+        
 
         // printf("Arg %d: %s\n", i, path);
     }

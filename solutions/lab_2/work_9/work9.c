@@ -14,6 +14,7 @@ typedef enum
     memory_error,
     correct,
     runtime_error,
+    invalid_input,
 } statements;
 
 
@@ -41,14 +42,20 @@ bool has_finite_representation(double num, int base) {
     return denominator == 1;
 }
 
-void check_representation(int base, int num, ...) {
+statements check_representation(int **mas, int base, int num, ...) {
     va_list numbers;
     va_start(numbers, num);
+    *mas = (int *) malloc(sizeof(int) * num);
+    if (mas == NULL) { return memory_error; }
 
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++) 
+    {
         double num = va_arg(numbers, double);
-        printf("Representation %.5lf in base %d: %s\n", num, base, has_finite_representation(num, base) ? "Finite" : "Infinite");
+        if (num < 0 || num > 1) { free(mas); return invalid_input; }
+
+        (*mas)[i] = has_finite_representation(num, base) ? 0 : 1;
     }
 
     va_end(numbers);
+    return correct;
 }
