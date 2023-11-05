@@ -112,7 +112,7 @@ statements parse_command(FILE *file, char **line)
     bool comment = false;
     bool bigcomment = false;
 
-    while ((ch = fgetc(file)) != EOF && ch != ';')
+    while ((ch = fgetc(file)) != EOF && !(ch == ';' && !comment && !bigcomment))
     {
         if (buf - 1 <= cnt)
         {
@@ -150,6 +150,7 @@ statements parse_command(FILE *file, char **line)
     }
     string[cnt] = '\0';
     *line = string;
+    if ((ch = fgetc(file)) == EOF) { return end_of;}
     return correct;
 }
 int to_int(char c) { return c - '0'; }
@@ -341,16 +342,97 @@ statements get_int(char *num, int *res)
     *res = (int)result;
     return correct;
 }
+
+bool is_digit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+statements validate_polynom(char *s)
+{
+    int len = strlen(s);
+
+    if (len == 0)
+    {
+        return invalid_input;
+    }
+
+    int i = 0;
+    bool expect_plus_or_minus_or_end = (s[0] == '+' || s[0] == '-') ? true : false;
+    bool canbex = true;
+    while (i < len)
+    {
+        if ((s[i] == '+' || s[i] == '-') && expect_plus_or_minus_or_end)
+        {
+            i++;
+            expect_plus_or_minus_or_end = false;
+            canbex = true;
+        }
+        else if (s[i] == 'x' && canbex)
+        {
+            i++;
+            if (i < len && s[i] == '^')
+            {
+                i++;
+                if (i < len && is_digit(s[i]))
+                {
+                    while (i < len && is_digit(s[i]))
+                    {
+                        i++;
+                    }
+                }
+                else
+                {
+                    return invalid_input;
+                }
+            }
+            canbex = false;
+            expect_plus_or_minus_or_end = true;
+        }
+        else if (is_digit(s[i]) && !expect_plus_or_minus_or_end)
+        {
+            while (i < len && is_digit(s[i]))
+            {
+                i++;
+            }
+            expect_plus_or_minus_or_end = true;
+        }
+        else
+        {
+            return invalid_input;
+        }
+    }
+
+    return expect_plus_or_minus_or_end ? correct : invalid_input;
+}
+
+int count_occurrences(char *str, char target) {
+    int count = 0;
+    while (*str) {
+        if (*str == target) {
+            count++;
+        }
+        str++;
+    }
+    return count;
+}
+
 statements run_command(char *line, Polynom **results)
 {
     int size = strlen(line);
+    int cmp1 = count_occurrences(line, '('),
+        cmp2 = count_occurrences(line, ')');
 
     if (strncmp(line, "Mult(", 5) != 0 && strncmp(line, "Mod(", 4) != 0 &&
         strncmp(line, "Div(", 4) != 0 && strncmp(line, "Add(", 4) != 0 &&
         strncmp(line, "Sub(", 4) != 0 && strncmp(line, "Diff(", 5) != 0 &&
         strncmp(line, "Cmps(", 5) != 0 && strncmp(line, "Eval(", 5) != 0)
     {
-        printf("Getting here UwU\n");
+        // printf("Getting here UwU\n");
+        return invalid_input;
+    }
+    if (cmp1 != cmp2 || cmp1 != 1)
+    {
         return invalid_input;
     }
     // example "Mult(x^2+3x-1,2x+x^3)";
@@ -383,6 +465,7 @@ statements run_command(char *line, Polynom **results)
 
     int n;
     char **input = split(polys, ",", &n);
+    //statements stmt = validate_polynom("2xxxxxxx^3");
 
     for (int i = 0; i < count; i++)
     {
@@ -393,6 +476,15 @@ statements run_command(char *line, Polynom **results)
     }
     free(tokens);
 
+    for (int i = 0; i < n; i++)
+    {
+        statements stmt = validate_polynom(input[i]);
+        if (stmt != correct)
+        {
+            free_mas(input, n);
+            return stmt;
+        }
+    }
     if (strncmp(line, "Mult(", 5) == 0 && n > 0)
     {
         Polynom *pol1 = NULL, *pol2 = NULL;
@@ -580,7 +672,6 @@ statements run_command(char *line, Polynom **results)
         }
         print_polynom(*results);
     }
-
     else if (strncmp(line, "Cmps(", 5) == 0 && n > 0)
     {
         Polynom *pol1 = NULL, *pol2 = NULL;
@@ -688,6 +779,8 @@ statements run_command(char *line, Polynom **results)
         // но сюда типо не попасть
     }
     free_mas(input, n);
+
+    return correct;
 }
 
 int run()
@@ -695,14 +788,35 @@ int run()
     FILE *file;
 
     statements stm = get_file("input.txt", &file);
-
+    if (stm != correct){
+        printf("Programm crashed with exit code %d \n", stm);
+        return stm;
+    }
     // printf("uwu\n");
-
-    char *command;
-    stm = parse_command(file, &command);
+    
     Polynom *p;
-    get_zero(&p);
-    run_command(command, &p);
+    stm = get_zero(&p);
+    if (stm != correct){
+        printf("Programm crashed with exit code %d \n", stm);
+        return stm;
+    }
+    char *command;
 
-    free(command);
+    while ((stm = parse_command(file, &command)) == correct)
+    {
+        //printf("%s\n", command);
+        stm = run_command(command, &p);
+        free(command);
+        if (stm != correct) {break;}
+    }
+    if (stm != end_of)
+    {
+        printf("Programm crashed with exit code %d \n", stm);
+    }
+    else
+    {
+        printf("Programm succesfully ended\n");
+    }
+    return stm;
+
 }

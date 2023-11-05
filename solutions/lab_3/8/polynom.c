@@ -306,6 +306,11 @@ statements devide_polynoms(const Polynom *a, const Polynom *b, Polynom **main_pa
     
     for (int i = 0; i <= (a->cnt - b->cnt); i++) 
     {
+        if (b->first->value == 0)
+        {
+            delete_polynom(remainder); delete_polynom(main);
+            return invalid_input;
+        }
         int coef = (int)(ptr->value / b->first->value);
         //printf("%d ", coef);
         ptr2->value= coef;
