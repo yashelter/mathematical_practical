@@ -324,6 +324,8 @@ statements build_polynom(char *input, int n, Polynom **a)
             return stm;
         }
         delete_polynom(current);
+        delete_polynom(p);
+        p = NULL;
         current = temper;
     }
     *a = current;
@@ -417,7 +419,23 @@ int count_occurrences(char *str, char target) {
     return count;
 }
 
-statements run_command(char *line, Polynom **results)
+statements validate_line(char *s)
+{
+    int size = strlen(s);
+    if (s[size-1] != ')' || count_occurrences(s, ',') > 1)
+    {
+        return invalid_input;
+    }
+    for (int i = 0; i < size-1; i++)
+    {
+        if ( !(is_digit((s[i])) == 0) && !(isalpha(s[i])== 0 ) && s[i] != ',' && s[i] != '('){
+            return invalid_input;
+        }
+    }
+    return correct;
+    
+}
+statements run_command(char *line, Polynom **results, int **Value)
 {
     int size = strlen(line);
     int cmp1 = count_occurrences(line, '('),
@@ -431,7 +449,7 @@ statements run_command(char *line, Polynom **results)
         // printf("Getting here UwU\n");
         return invalid_input;
     }
-    if (cmp1 != cmp2 || cmp1 != 1)
+    if (cmp1 != cmp2 || cmp1 != 1 || validate_line(line) != correct)
     {
         return invalid_input;
     }
@@ -499,6 +517,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 2)
         {
             stm = build_polynom(input[1], n, &pol2);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol1);
@@ -513,14 +532,14 @@ statements run_command(char *line, Polynom **results)
             swap(&pol1, &pol2);
         }
         stm = multiply_polynoms(pol1, pol2, results);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
+           
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
     }
     else if (strncmp(line, "Add(", 4) == 0 && n > 0)
     {
@@ -536,6 +555,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 2)
         {
             stm = build_polynom(input[1], n, &pol2);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol1);
@@ -550,14 +570,14 @@ statements run_command(char *line, Polynom **results)
             swap(&pol1, &pol2);
         }
         stm = summation_polynoms(pol1, pol2, results);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
+        
     }
     else if (strncmp(line, "Div(", 4) == 0 && n > 0)
     {
@@ -573,6 +593,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 2)
         {
             stm = build_polynom(input[1], n, &pol2);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol1);
@@ -587,14 +608,13 @@ statements run_command(char *line, Polynom **results)
             swap(&pol1, &pol2);
         }
         stm = div_polynoms(pol1, pol2, results);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
     }
     else if (strncmp(line, "Mod(", 4) == 0 && n > 0)
     {
@@ -610,6 +630,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 2)
         {
             stm = build_polynom(input[1], n, &pol2);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol1);
@@ -623,16 +644,16 @@ statements run_command(char *line, Polynom **results)
             pol2 = *results;
             swap(&pol1, &pol2);
         }
-
-        stm = mod_polynoms(pol1, pol2, results);
+        Polynom *ppppt;
+        stm = mod_polynoms(pol1, pol2, &ppppt);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
+        *results = ppppt;
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
     }
     else if (strncmp(line, "Sub(", 4) == 0 && n > 0)
     {
@@ -647,6 +668,7 @@ statements run_command(char *line, Polynom **results)
         }
         if (n == 2)
         {
+            delete_polynom(*results);
             statements stm = build_polynom(input[1], n, &pol2);
             if (stm != correct)
             {
@@ -663,14 +685,14 @@ statements run_command(char *line, Polynom **results)
         }
 
         stm = subscription_polynoms(pol1, pol2, results);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
+        
     }
     else if (strncmp(line, "Cmps(", 5) == 0 && n > 0)
     {
@@ -686,6 +708,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 2)
         {
             stm = build_polynom(input[1], n, &pol2);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol2);
@@ -700,14 +723,13 @@ statements run_command(char *line, Polynom **results)
         }
 
         stm = compose_polynoms(pol1, pol2, results);
+        delete_polynom(pol1);
+        delete_polynom(pol2);
         if (stm != correct)
         {
-            delete_polynom(pol1);
-            delete_polynom(pol2);
             free_mas(input, n);
             return stm;
         }
-        print_polynom(*results);
     }
     else if (strncmp(line, "Diff(", 5) == 0)
     {
@@ -715,6 +737,7 @@ statements run_command(char *line, Polynom **results)
         if (n == 1)
         {
             statements stm = build_polynom(input[0], n, &pol);
+            delete_polynom(*results);
             if (stm != correct)
             {
                 delete_polynom(pol);
@@ -735,7 +758,6 @@ statements run_command(char *line, Polynom **results)
             return stm;
         }
         *results = pol;
-        print_polynom(*results);
     }
     else if (strncmp(line, "Eval(", 5) == 0 && n > 0)
     {
@@ -743,6 +765,7 @@ statements run_command(char *line, Polynom **results)
         int kk = 0;
         if (n == 2)
         {
+            delete_polynom(*results);
             statements stm = build_polynom(input[kk++], n, &pol);
             if (stm != correct)
             {
@@ -770,7 +793,12 @@ statements run_command(char *line, Polynom **results)
             free_mas(input, n);
             return stm;
         }
-        printf("Calculated value : %lld\n", val);
+       *Value = (int *) malloc(sizeof(int));
+       if (*Value == NULL) {return allocate_error;}
+       *results = pol;
+       **Value = val;
+        //printf("Calculated value : %lld\n", val);
+        
     }
     else
     {
@@ -790,24 +818,41 @@ int run()
     statements stm = get_file("input.txt", &file);
     if (stm != correct){
         printf("Programm crashed with exit code %d \n", stm);
+         fclose(file);
         return stm;
     }
     // printf("uwu\n");
     
-    Polynom *p;
+    Polynom *p, *newp;
     stm = get_zero(&p);
     if (stm != correct){
         printf("Programm crashed with exit code %d \n", stm);
+         fclose(file);
         return stm;
     }
     char *command;
 
     while ((stm = parse_command(file, &command)) == correct)
     {
+        int *temp = NULL;
         //printf("%s\n", command);
-        stm = run_command(command, &p);
+        stm = run_command(command, &p, &temp);
         free(command);
+        command = NULL;
         if (stm != correct) {break;}
+        if (temp == NULL)
+        {
+             print_polynom(p);
+        }
+        else{
+            printf("Calculated value is : %d\n", *temp);
+            free(temp);
+        }
+       
+    }
+    if (command != NULL)
+    {
+        free(command);
     }
     if (stm != end_of)
     {
@@ -817,6 +862,8 @@ int run()
     {
         printf("Programm succesfully ended\n");
     }
+    delete_polynom(p);
+    fclose(file);
     return stm;
-
+    
 }

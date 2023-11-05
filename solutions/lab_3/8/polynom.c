@@ -79,6 +79,7 @@ statements delete_polynom(Polynom *p)
      if (p == NULL) {return invalid_input; }
      if (p->first != NULL) { clear_elements(p->first); }
      free(p);
+     p = NULL;
 }
 
 void print_elements(Element *e)
@@ -344,6 +345,7 @@ statements devide_polynoms(const Polynom *a, const Polynom *b, Polynom **main_pa
     
     if (remainder->cnt == 0)
     {
+        delete_polynom(remainder);
         stm = create_polynom(&remainder);
         if (stm != correct) { delete_polynom(main); return stm; }
 
@@ -373,6 +375,7 @@ statements devide_polynoms(const Polynom *a, const Polynom *b, Polynom **main_pa
 
     if (main->cnt == 0)
     {
+        delete_polynom(main);
         stm = create_polynom(&main);
         if (stm != correct) { delete_polynom(remainder); return stm; }
 
@@ -427,7 +430,7 @@ statements multiply_polynom_by_pow(const Polynom *a, int pow, int val, Polynom *
 }
 
 statements compose_polynoms(const Polynom *A, const Polynom *B, Polynom **resulting) {
-    Polynom *result;
+    Polynom *result, *temp;
     Element *ptr = A->first;
     statements stm;
 
@@ -436,17 +439,17 @@ statements compose_polynoms(const Polynom *A, const Polynom *B, Polynom **result
     
     for (int i = A->cnt-1; i >= 0; i--)
     {
-        Polynom *term;
-        stm = create_polynom(&term);
-        if (stm != correct) {delete_polynom(result); return stm; }
-
+        Polynom *term = NULL;
+        //stm = create_polynom(&term);
+        //if (stm != correct) {delete_polynom(result); return stm; }
         stm = multiply_polynom_by_pow(B, i, ptr->value, &term);
-
         if (stm != correct) {delete_polynom(result); delete_polynom(term); return stm; }
         //printf("%d \n", ptr->value);
-        stm = summation_polynoms(result, term, &result);
+
+        stm = summation_polynoms(result, term, &temp);
         if (stm != correct) {delete_polynom(result); delete_polynom(term); return stm; }
-      
+        delete_polynom(result);
+        result = temp;
         delete_polynom(term);
         ptr = ptr->next;
     }
