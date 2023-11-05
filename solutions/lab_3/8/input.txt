@@ -1,0 +1,13 @@
+Add(adfasf) % where allafda faddf afd sfsdaf sdadas s
+ [
+    sdg
+    sdadasg
+    dsfg
+    dsfggdsgsdf
+    dsfgsdgf
+    gsd
+ ]
+;
+
+Add(4x-8); % в качестве первого аргумента будет взято значение из сумматора, результат будет занесен в сумматор;
+Eval(1); % необходимо будет взять многочлен из сумматора и для него вычислить значение в 1.

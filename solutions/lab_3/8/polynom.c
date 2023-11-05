@@ -35,7 +35,7 @@ typedef struct
 
 
 
-Element* get_by_index(Polynom *p, int index)
+Element* get_by_index(const Polynom *p, int index)
 {
     Element *ptr = p->first;
     int i = 0;
@@ -100,7 +100,7 @@ void print_polynom(Polynom *p)
 }
 
 
-statements calculate_polynom(Polynom *p, ll *res, int x)
+statements calculate_polynom(const Polynom *p, ll *res, int x)
 {
     if (p == NULL) {return invalid_input; }
     *res = 0;
@@ -181,7 +181,7 @@ statements resize_polynom(Polynom *p, int size)
 
 
 
-statements subscription_polynoms(Polynom *a, Polynom *b, Polynom **result)
+statements subscription_polynoms(const Polynom *a, const Polynom *b, Polynom **result)
 {
     Polynom *p;
     statements stm = create_polynom(&p);
@@ -210,7 +210,7 @@ statements subscription_polynoms(Polynom *a, Polynom *b, Polynom **result)
 }
 
 
-statements summation_polynoms(Polynom *a, Polynom *b, Polynom **result)
+statements summation_polynoms(const Polynom *a, const Polynom *b, Polynom **result)
 {
     Polynom *p;
     statements stm = create_polynom(&p);
@@ -241,8 +241,9 @@ statements summation_polynoms(Polynom *a, Polynom *b, Polynom **result)
 }
 
 
-statements multiply_polynoms(Polynom *a, Polynom *b, Polynom **result)
+statements multiply_polynoms(const Polynom *a, const Polynom *b, Polynom **result)
 {
+    
     Polynom *p;
     statements stm = create_polynom(&p);
     if (stm != correct) { return stm; }
@@ -252,15 +253,16 @@ statements multiply_polynoms(Polynom *a, Polynom *b, Polynom **result)
 
     stm = resize_polynom(p, size);
     if (stm != correct) { return stm; }
-
     for (int i = 0; i < a->cnt; i++)
     {
+        
         Element *_i = get_by_index(a, i);
         for (int j = 0; j < b->cnt; j++)
         {
             Element *_j = get_by_index(b, j);
             Element *_ij = get_by_index(p, i+j);
             _ij->value = _ij->value + (_i->value * _j->value);
+
             //p->koeffs[i+j] = (a->koeffs[i] * b->koeffs[j]) +  p->koeffs[i+j] ;
         }
     }
@@ -395,5 +397,55 @@ statements div_polynoms(const Polynom *a, const Polynom *b, Polynom **reminder_p
     statements stm = devide_polynoms(a, b, &temp, reminder_part);
     if (stm != correct) { return stm ;}
     delete_polynom(temp);
+    return correct;
+}
+
+statements multiply_polynom_by_pow(const Polynom *a, int pow, int val, Polynom **result)
+{
+    Polynom *p;
+    statements stm = create_polynom(&p);
+    if (stm != correct) { return stm; }
+
+    int size = a->cnt + pow;
+
+    stm = resize_polynom(p, size);
+    if (stm != correct) { return stm; }
+
+    for (int i = 0; i < a->cnt; i++)
+    {
+        Element *_i = get_by_index(p, i);
+        Element *_j = get_by_index(a, i);
+        _i->value = (_j->value * val);
+    }
+    *result = p;
+    return correct;
+}
+
+statements compose_polynoms(const Polynom *A, const Polynom *B, Polynom **resulting) {
+    Polynom *result;
+    Element *ptr = A->first;
+    statements stm;
+
+    stm = create_polynom(&result);
+    if (stm != correct) {return stm; }
+    
+    for (int i = A->cnt-1; i >= 0; i--)
+    {
+        Polynom *term;
+        stm = create_polynom(&term);
+        if (stm != correct) {delete_polynom(result); return stm; }
+
+        stm = multiply_polynom_by_pow(B, i, ptr->value, &term);
+
+        if (stm != correct) {delete_polynom(result); delete_polynom(term); return stm; }
+        //printf("%d \n", ptr->value);
+        stm = summation_polynoms(result, term, &result);
+        if (stm != correct) {delete_polynom(result); delete_polynom(term); return stm; }
+      
+        delete_polynom(term);
+        ptr = ptr->next;
+    }
+    
+    *resulting = result;
     return correct;
 }
