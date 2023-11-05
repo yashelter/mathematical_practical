@@ -382,7 +382,7 @@ statements devide_polynoms(const Polynom *a, const Polynom *b, Polynom **main_pa
     return correct;
 }
 
-statements mod_polynoms(const Polynom *a, const Polynom *b, Polynom **main_part)
+statements div_polynoms(const Polynom *a, const Polynom *b, Polynom **main_part)
 {
     Polynom *temp = NULL;
     statements stm = devide_polynoms(a, b, main_part, &temp);
@@ -391,7 +391,7 @@ statements mod_polynoms(const Polynom *a, const Polynom *b, Polynom **main_part)
     return correct;
 }
 
-statements div_polynoms(const Polynom *a, const Polynom *b, Polynom **reminder_part)
+statements mod_polynoms(const Polynom *a, const Polynom *b, Polynom **reminder_part)
 {
     Polynom *temp = NULL;
     statements stm = devide_polynoms(a, b, &temp, reminder_part);
@@ -448,4 +448,9 @@ statements compose_polynoms(const Polynom *A, const Polynom *B, Polynom **result
     
     *resulting = result;
     return correct;
+}
+void swap(Polynom **a, Polynom **b){
+    Polynom **temp = a;
+    a = b;
+    b = temp;
 }

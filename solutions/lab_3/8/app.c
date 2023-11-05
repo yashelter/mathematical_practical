@@ -323,10 +323,22 @@ statements build_polynom(char *input, int n, Polynom **a)
             return stm;
         }
         delete_polynom(current);
-        current = temper; 
+        current = temper;
     }
     *a = current;
-    //print_polynom(current);
+    // print_polynom(current);
+    return correct;
+}
+
+statements get_int(char *num, int *res)
+{
+    char *endptr;
+    long result = strtol(num, &endptr, 10);
+    if (*endptr != '\0')
+    {
+        return invalid_input;
+    }
+    *res = (int)result;
     return correct;
 }
 statements run_command(char *line, Polynom **results)
@@ -338,6 +350,7 @@ statements run_command(char *line, Polynom **results)
         strncmp(line, "Sub(", 4) != 0 && strncmp(line, "Diff(", 5) != 0 &&
         strncmp(line, "Cmps(", 5) != 0 && strncmp(line, "Eval(", 5) != 0)
     {
+        printf("Getting here UwU\n");
         return invalid_input;
     }
     // example "Mult(x^2+3x-1,2x+x^3)";
@@ -382,51 +395,297 @@ statements run_command(char *line, Polynom **results)
 
     if (strncmp(line, "Mult(", 5) == 0 && n > 0)
     {
-        // printf("%s.%s\n", input[0], input[1]);
-        Polynom *pol1, *pol2;
-        build_polynom(input[0], n, &pol1);
-        
-        if (n == 2){
-            build_polynom(input[1], n, &pol2);
+        Polynom *pol1 = NULL, *pol2 = NULL;
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
         }
-        else{
+        if (n == 2)
+        {
+            stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol1);
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
             pol2 = *results;
+            swap(&pol1, &pol2);
         }
-        multiply_polynoms(pol1, pol2, results);
+        stm = multiply_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
         print_polynom(*results);
-        // example "Mult(x^2+3x-1,2x+x^3)";
     }
-    if (strncmp(line, "Add(", 4) == 0 && n > 0)
+    else if (strncmp(line, "Add(", 4) == 0 && n > 0)
     {
-        // printf("%s.%s\n", input[0], input[1]);
-        Polynom *pol1, *pol2;
-        build_polynom(input[0], n, &pol1);
-        
-        if (n == 2){
-            build_polynom(input[1], n, &pol2);
+        Polynom *pol1 = NULL, *pol2 = NULL;
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
         }
-        else{
+        if (n == 2)
+        {
+            stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol1);
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
             pol2 = *results;
+            swap(&pol1, &pol2);
         }
-        summation_polynoms(pol1, pol2, results);
+        stm = summation_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
         print_polynom(*results);
-        // example "Mult(x^2+3x-1,2x+x^3)";
     }
-    if (strncmp(line, "Add(", 4) == 0 && n > 0)
+    else if (strncmp(line, "Div(", 4) == 0 && n > 0)
     {
-        // printf("%s.%s\n", input[0], input[1]);
-        Polynom *pol1, *pol2;
-        build_polynom(input[0], n, &pol1);
-        
-        if (n == 2){
-            build_polynom(input[1], n, &pol2);
+        Polynom *pol1 = NULL, *pol2 = NULL;
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
         }
-        else{
+        if (n == 2)
+        {
+            stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol1);
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
             pol2 = *results;
+            swap(&pol1, &pol2);
         }
-        summation_polynoms(pol1, pol2, results);
+        stm = div_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
         print_polynom(*results);
-        // example "Mult(x^2+3x-1,2x+x^3)";
+    }
+    else if (strncmp(line, "Mod(", 4) == 0 && n > 0)
+    {
+        Polynom *pol1 = NULL, *pol2 = NULL;
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
+        if (n == 2)
+        {
+            stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol1);
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
+            pol2 = *results;
+            swap(&pol1, &pol2);
+        }
+
+        stm = mod_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
+        print_polynom(*results);
+    }
+    else if (strncmp(line, "Sub(", 4) == 0 && n > 0)
+    {
+        Polynom *pol1 = NULL, *pol2 = NULL;
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
+        if (n == 2)
+        {
+            statements stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol1);
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
+            pol2 = *results;
+            swap(&pol1, &pol2);
+        }
+
+        stm = subscription_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
+        print_polynom(*results);
+    }
+
+    else if (strncmp(line, "Cmps(", 5) == 0 && n > 0)
+    {
+        Polynom *pol1 = NULL, *pol2 = NULL;
+
+        statements stm = build_polynom(input[0], n, &pol1);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            free_mas(input, n);
+            return stm;
+        }
+        if (n == 2)
+        {
+            stm = build_polynom(input[1], n, &pol2);
+            if (stm != correct)
+            {
+                delete_polynom(pol2);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
+            pol2 = *results;
+            swap(&pol1, &pol2);
+        }
+
+        stm = compose_polynoms(pol1, pol2, results);
+        if (stm != correct)
+        {
+            delete_polynom(pol1);
+            delete_polynom(pol2);
+            free_mas(input, n);
+            return stm;
+        }
+        print_polynom(*results);
+    }
+    else if (strncmp(line, "Diff(", 5) == 0)
+    {
+        Polynom *pol;
+        if (n == 1)
+        {
+            statements stm = build_polynom(input[0], n, &pol);
+            if (stm != correct)
+            {
+                delete_polynom(pol);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
+            pol = *results;
+        }
+
+        statements stm = diff_polynom(pol);
+        if (stm != correct)
+        {
+            delete_polynom(pol);
+            free_mas(input, n);
+            return stm;
+        }
+        *results = pol;
+        print_polynom(*results);
+    }
+    else if (strncmp(line, "Eval(", 5) == 0 && n > 0)
+    {
+        Polynom *pol;
+        int kk = 0;
+        if (n == 2)
+        {
+            statements stm = build_polynom(input[kk++], n, &pol);
+            if (stm != correct)
+            {
+                delete_polynom(pol);
+                free_mas(input, n);
+                return stm;
+            }
+        }
+        else
+        {
+            pol = *results;
+        }
+        long long val;
+        int num;
+        statements stm = get_int(input[kk], &num);
+        if (stm != correct)
+        {
+            free_mas(input, n);
+            return stm;
+        }
+        stm = calculate_polynom(pol, &val, num);
+        if (stm != correct)
+        {
+            delete_polynom(pol);
+            free_mas(input, n);
+            return stm;
+        }
+        printf("Calculated value : %lld\n", val);
+    }
+    else
+    {
+        free_mas(input, n);
+        return runtime_error;
+        // но сюда типо не попасть
     }
     free_mas(input, n);
 }
@@ -442,6 +701,7 @@ int run()
     char *command;
     stm = parse_command(file, &command);
     Polynom *p;
+    get_zero(&p);
     run_command(command, &p);
 
     free(command);
