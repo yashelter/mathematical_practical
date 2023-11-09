@@ -36,6 +36,9 @@ void copy_chars(char *to, char *from, int start, int l)
 
 statements create_string(char *input, String **resulting)
 {
+    if (input == NULL){
+        return invalid_input;
+    }
     String *s = (String *)malloc(sizeof(String));
     if (s == NULL)
     {

@@ -15,4 +15,5 @@ typedef enum
     allocate_error,
     invalid_file,
     end_of,
+    not_found
 } statements;

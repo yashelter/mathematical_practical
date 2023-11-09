@@ -11,6 +11,7 @@
         "tuple": "c",
         "type_traits": "c",
         "random": "c",
-        "string": "c"
+        "string": "c",
+        "time.h": "c"
     }
 }
