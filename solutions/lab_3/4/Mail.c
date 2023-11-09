@@ -136,7 +136,7 @@ void print_mail(Mail *mail)
 
 void print_mails(Post *office)
 {
-    for (size_t i = 0; i < office->mails_cnt; i++)
+    for (int i = 0; i < office->mails_cnt; i++)
     {
         print_mail(office->mails[i]);
     }
@@ -172,8 +172,8 @@ void delete_post(Post *post)
         delete_mail((post->mails)[i]);
     }
     free(post->mails);
+    
     delete_adress(post->adress);
-    free(post);
 }
 char *get_сurrent_time()
 {
@@ -365,10 +365,11 @@ void parse_timestamp(char *timestamp, struct tm *tm)
     tm->tm_sec = second;
 }
 
-void skip_empty(char *c)
+void skip_empty()
 {
-    while (*c != '\n' && (*c = getchar()) != '\n' && *c != EOF)
-    {
+    char c;
+    while ((c = getchar()) != '\n' && c != EOF)
+   {
     }
 }
 statements create_mail(Post *post, Mail **resulting)
@@ -529,7 +530,7 @@ statements track_mail(Post *post)
 
     char mail_id[14];
     scanf("%s", mail_id);
-    skip_empty(&c);
+    skip_empty();
 
     int position;
 
@@ -553,7 +554,7 @@ statements track_mail(Post *post)
         {
             printf("-: ");
             scanf(" %c", &response);
-            skip_empty(&c);
+            skip_empty();
             if (response == 'g')
             {
                 if (post->mails[position]->done){
@@ -626,9 +627,7 @@ void run(Post *post)
 
         printf("-: ");
         scanf("%c", &input);
-
-        skip_empty(&c);
-        size_t len;
+        skip_empty();
 
         if (input == 'c')
         {
@@ -640,9 +639,9 @@ void run(Post *post)
                 {
                     delete_mail(temp);
                 }
-                printf("\nError : while entering mail (code %d)\n", stm);
+                printf("\nError : while entering mail (code %d)\nPress Enter to continue ...", stm);
             }
-            skip_empty(&c);
+            skip_empty();
         }
         else if (input == 'm')
         {
@@ -658,7 +657,9 @@ void run(Post *post)
             {
                 printf("\nDelivered mails : ");
                 if (cnt1 == 0)
+                {
                     printf("0\nNot any mail was delivered\n");
+                }
                 else
                 {
                     for (int i = 0; i < cnt1; i++)
@@ -666,10 +667,10 @@ void run(Post *post)
                         print_mail(delivered[i]);
                     }
                 }
-                printf("\nWhith failed date : ");
+                printf("\nWith failed date : ");
                 if (cnt2 == 0)
                 {
-                    printf("0\nno one mail was failed\n");
+                    printf("0\nNo one mail was failed\n");
                 }
                 else
                 {
@@ -703,6 +704,7 @@ void run(Post *post)
         }
         else
         {
+            printf("<%c>, input", input);
             printf("\n> Invalid input, please re-enter valid command\n");
         }
     }
