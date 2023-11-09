@@ -83,3 +83,16 @@ void print_nodes(Node *root, int depth)
         print_nodes((root->children)[i], depth + 1);
     }
 }
+void fprint_nodes(FILE *out, Node *root, int depth)
+{
+    for (int i = 0; i < depth; i++)
+    {
+        fprintf(out, "\t");
+    }
+    fprint_string(out, root->data);
+    fprintf(out, ">\n");
+    for (int i = 0; i < root->childCount; i++)
+    {
+        fprint_nodes(out, (root->children)[i], depth + 1);
+    }
+}

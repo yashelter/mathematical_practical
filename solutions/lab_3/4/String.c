@@ -106,6 +106,22 @@ statements string_copy_to(String *to, String *from)
     return correct;
 }
 
+
+statements string_add_char(char symb, String *s)
+{
+    if (s->length + 1 >= s->_buffer){
+        s->_buffer = s->_buffer + s->_buffer + 1;
+        char *temp = (char *) realloc(s->value, sizeof(char) * s->_buffer);
+        if (temp == NULL) {free(s->value); s->value = NULL; return allocate_error; }
+        s->value = temp;
+    }
+    (s->value)[s->length] = symb;
+    (s->length) = (s->length) + 1;
+    (s->value)[s->length] = '\0';
+    return correct;
+}
+
+
 // getting copy of string
 statements string_copy(String *from, String **result)
 {
@@ -163,6 +179,15 @@ void print_string(String *s)
     for (int i = 0; i < s->length; i++)
     {
         printf("%c", (s->value)[i]);
+    }
+    //printf(" ");
+    //printf("\n"); // debug
+}
+void fprint_string(FILE *out, String *s)
+{
+    for (int i = 0; i < s->length; i++)
+    {
+        fprintf(out, "%c", (s->value)[i]);
     }
     //printf(" ");
     //printf("\n"); // debug
