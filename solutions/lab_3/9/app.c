@@ -256,6 +256,7 @@ void run(int argc, char *argv[])
     printf(">>> <w> Track one word\n");
     printf(">>> <n> Find the most used fords\n");
     printf(">>> <b> Back-up tree in file\n");
+    printf(">>> <d> Back-up tree in file\n");
     printf(">>> <l> Load tree from file\n");
     printf(">>> <s> Search the longest and shortest\n");
     printf(">>> <q> exit from programm\n\n");
@@ -295,6 +296,7 @@ void run(int argc, char *argv[])
                 continue;
             }
             stm = find_node(root, s, &needed);
+            delete_string(s);
             if (stm == correct){
             printf("Word was in text <%d> times\n", needed->count);}
             else{
@@ -386,11 +388,19 @@ void run(int argc, char *argv[])
             }
             free(nds);
         }
+        else if (input == 'd')
+        {
+            int deep = deep_node(root) - 1;
+            printf("The deep is : %d\n", deep);
+        }
         else if (input == 'q')
         {
             delete_node(&root);
             printf("Work ended\n");
             return;
+        }
+        else{
+            printf("Error : invalid input\n");
         }
     }
 }
