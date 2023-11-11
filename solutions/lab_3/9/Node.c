@@ -56,8 +56,12 @@ Node *create_node_s(String *s, statements *st)
 
 void delete_node(Node **n)
 {
-    if (n != NULL)
+    
+    if (*n != NULL)
     {
+        delete_node(&((*n)->left_child));
+        delete_node(&((*n)->right_child));
+        delete_string((*n)->data);
         free(*n);
     }
     *n = NULL;
@@ -167,7 +171,7 @@ int compare_nodes(const void *a, const void *b)
     const Node *_a = (const Node *)a;
     const Node *_b = (const Node *)b;
 
-    return _a->count - _b->count;
+    return _b->count - _a->count ;
 }
 
 void delete_nodes(Node **nds)
@@ -190,7 +194,7 @@ Node **get_sorted(Node *root, int *l, statements *stm)
     }
     int pos = 0;
     fill(root, &nodes, &pos);
-    qsort(nodes, size, sizeof(Node), compare_nodes);
+    qsort(nodes, size, sizeof(Node *), compare_nodes);
     *l = size;
     return nodes;
 }
@@ -217,13 +221,13 @@ void print_nodes(Node *root, int depth)
     print_nodes(root->right_child, depth + 1);
 }
 
-void trace_nodes (Node *root, int from, int *ind, FILE *file){
+
+void trace_nodes (Node *root,  FILE *file)
+{
     if (root == NULL){return;}
-    fprintf(file, "<%d|%d|%d|%s>\n", from, *ind, root->count, root->data->value);
-    (*ind) = (*ind) + 1;
-    trace_nodes(root->left_child, *ind - 1, ind, file);
-    (*ind) = (*ind) + 1;
-    trace_nodes(root->right_child, *ind - 1, ind, file);
+    fprintf(file, "%s>%d>\n", root->data->value, root->count);
+    trace_nodes(root->left_child, file);
+    trace_nodes(root->right_child, file);
 }
 
 bool backup_nodes(Node *root){
@@ -232,6 +236,6 @@ bool backup_nodes(Node *root){
         return false;
     }
 
-    int ind = 0;
-    trace_nodes(root,0, &ind, file);
+    trace_nodes(root, file);
+    fclose(file);
 }
