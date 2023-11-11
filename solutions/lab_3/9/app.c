@@ -45,7 +45,13 @@ bool load_nodes(Node **result)
         return false;
     }
     statements stm;
-    Node *root = create_node("_root_", &stm);
+    Node *root = create_node("", &stm);
+
+    if (stm != correct)
+    {
+        fclose(file);
+        return false;
+    }
     root->count = -1;
 
     char *separators = ">";
@@ -115,6 +121,15 @@ statements validate(int argc, char *argv[], char **sep)
     return correct;
 }
 
+bool validate_file(FILE *file)
+{
+    char symb = '-';
+    while (((symb = fgetc(file)) != EOF) && symb != '>')
+    {
+    }
+    return symb != '>';
+}
+
 statements build_tree(int argc, char *argv[], Node **resultings)
 {
     char *separators = NULL;
@@ -129,10 +144,24 @@ statements build_tree(int argc, char *argv[], Node **resultings)
         free(separators);
         return invalid_file;
     }
-    Node *root = create_node("_root_", &stm);
-    if (stm != correct)
+    if (!validate_file(file))
     {
         fclose(file);
+        free(separators);
+        return invalid_input;
+    }
+    fclose(file);
+    file = fopen(argv[1], "r");
+    if (file == NULL)
+    {
+        free(separators);
+        return invalid_file;
+    }
+
+    Node *root = create_node("", &stm);
+    if (stm != correct)
+    {
+
         free(separators);
         return invalid_file;
     }
@@ -258,21 +287,26 @@ void run(int argc, char *argv[])
         else if (input == 'w')
         {
             Node *needed;
+            printf("Enter the word for search : ");
             String *s = get_line(stdin, "\n", &stm);
             if (stm != correct && stm != end_of)
             {
                 delete_string(s);
                 continue;
             }
-            find_node(root, s, &needed);
-            printf("Word was in text <%d> times\n", needed->count);
+            stm = find_node(root, s, &needed);
+            if (stm == correct){
+            printf("Word was in text <%d> times\n", needed->count);}
+            else{
+               printf("Word was not found\n");
+            }
         }
         else if (input == 'n')
         {
             printf("\nEnter the needed N : ");
             fflush(stdout);
             int N = 0, size = 0;
-            
+
             stm = get_int(&N);
 
             if (stm != correct)
@@ -283,7 +317,7 @@ void run(int argc, char *argv[])
             }
 
             Node **nds = get_sorted(root, &size, &stm);
-            //printf("%d, %d\n", N, size);
+            // printf("%d, %d\n", N, size);
             if (stm != correct)
             {
                 printf("Error : occured error (code %d)\n", stm);
@@ -299,19 +333,58 @@ void run(int argc, char *argv[])
         }
         else if (input == 'b')
         {
-            backup_nodes(root);
+            bool backuped = backup_nodes(root);
+            if (!backuped)
+            {
+                printf("Error : can't back-up tree\n");
+                continue;
+            }
+            printf("Succesfully back-up'ed\n");
         }
         else if (input == 'l')
         {
-            delete_node(&root);
             Node *new_root;
-            load_nodes(&new_root);
+            bool loaded = load_nodes(&new_root);
+            if (!loaded)
+            {
+                printf("Error : can't load tree\n");
+                continue;
+            }
+            delete_node(&root);
             root = new_root;
-            printf("Readed Tree: ");
+            printf("Readed Tree: \n\n");
             print_nodes(new_root, 0);
         }
-        else if (input == 's'){
-            
+        else if (input == 's')
+        {
+            int size = 0;
+            Node **nds = get_sorted(root, &size, &stm);
+            // printf("%d, %d\n", N, size);
+            if (stm != correct)
+            {
+                printf("Error : occured error (code %d)\n", stm);
+                continue;
+            }
+            if (size > 1)
+            {
+                String *shortest = (nds[1])->data;
+                String *longest = (nds[1])->data;
+
+                for (int i = 2; i < size; i++)
+                {
+                    if (shortest->length > ((nds[i])->data->length))
+                    {
+                        shortest = nds[i]->data;
+                    }
+                    if (longest->length < ((nds[i])->data->length))
+                    {
+                        longest = nds[i]->data;
+                    }
+                }
+                printf("The longest lexema is : %s\n", longest->value);
+                printf("The shortest lexema is : %s\n", shortest->value);
+            }
+            free(nds);
         }
         else if (input == 'q')
         {

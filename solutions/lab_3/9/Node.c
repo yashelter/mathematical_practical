@@ -238,4 +238,5 @@ bool backup_nodes(Node *root){
 
     trace_nodes(root, file);
     fclose(file);
+    return true;
 }

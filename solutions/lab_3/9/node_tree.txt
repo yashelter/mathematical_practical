@@ -1,9 +1,4 @@
-_root_>0>
-try>1>
-wow>1>
-work>2>
-woof>1>
-spl,,it>1>
-or>1>
-not>1>
->11>
+>0>
+try;spl>1>
+it;wow;work;work>1>
+;or;not;;;;woof;;;;;;;;>1>
