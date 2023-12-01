@@ -1,5 +1,7 @@
-#include "Student.c"
+#include "services.c"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
     
+    run("in.txt");
 }

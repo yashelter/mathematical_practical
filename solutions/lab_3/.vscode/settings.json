@@ -16,6 +16,7 @@
         "deque": "c",
         "unordered_map": "c",
         "vector": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "memory": "c"
     }
 }

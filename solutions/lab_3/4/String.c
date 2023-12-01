@@ -1,5 +1,6 @@
 #include "../MonoBehavior.c"
 
+#define MAX_INPUT_S 1024
 typedef struct
 {
     char *value;
@@ -124,6 +125,22 @@ statements string_add_char(char symb, String *s)
     return correct;
 }
 
+statements string_add_line(String *s, char *line)
+{
+    statements stm;
+    int len = strlen(line);
+    for (int i = 0; i < len; i++)
+    {
+        stm = string_add_char(line[i], s);
+        if (stm != correct)
+        {
+            return stm;
+        }
+    }
+    
+    return correct;
+}
+
 
 // getting copy of string
 statements string_copy(String *from, String **result)
@@ -194,4 +211,34 @@ void fprint_string(FILE *out, String *s)
     }
     //printf(" ");
     //printf("\n"); // debug
+}
+void skip_empty(FILE *in, char ending, char* character)
+{
+     while ((*character = fgetc(in)) != ending && *character != EOF);
+     //ungetc(*character, in);
+}
+String *input_string(FILE *in, statements *stm)
+{
+    String * s;
+    *stm = create_string("", &s);
+
+    if (*stm != correct)
+    {
+        return NULL;
+    }
+     
+    char character;
+    //skip_empty(&character);
+    character = fgetc(in);
+    while (character != EOF && character != ' ') {
+        
+        *stm = string_add_char(character, s);
+        if (*stm != correct)
+        {
+            return NULL;
+        }
+        character = fgetc(in);
+    }
+    //skip_empty(character);
+    return s;
 }
