@@ -76,11 +76,12 @@ statements run(char *path)
 
     while (true)
     {
+        //skippy_empty();
         printf("-: ");
         char input;
         scanf("%c", &input);
 
-        skippy_empty();
+        //skippy_empty();
         if (input == 's')
         {
             printf("Select sort parameter\n");
@@ -90,7 +91,8 @@ statements run(char *path)
             printf(">>> <s> by surname\n\n");
             printf("-: ");
             scanf("%c", &input);
-            CompareFunction ptr; 
+            //skippy_empty();
+            CompareFunction ptr;
             if (input == 'i')
             {
                 ptr = compare_by_id;
@@ -99,11 +101,11 @@ statements run(char *path)
             {
                 ptr = compare_by_group;
             }
-             if (input == 'n')
+            if (input == 'n')
             {
                 ptr = compare_by_name;
             }
-             if (input == 's')
+            if (input == 's')
             {
                 ptr = compare_by_sname;
             }
@@ -116,8 +118,12 @@ statements run(char *path)
 
             char path[1024] = "";
 
-            scanf("%s", path);
-            FILE * out = NULL;
+            if (scanf("%s", path) != 1)
+            {
+                printf("Something wrong of Not founded\n");
+                continue;
+            }
+            FILE *out = NULL;
 
             out = fopen(path, "w");
 
@@ -127,7 +133,7 @@ statements run(char *path)
                 continue;
             }
             int new_cnt = n;
-            Student ** good = get_better_mid_students(students, &new_cnt);
+            Student **good = get_better_mid_students(students, &new_cnt);
             if (good == NULL)
             {
                 fclose(out);
@@ -143,7 +149,99 @@ statements run(char *path)
             fclose(out);
             free(good);
         }
+        // осталось чучуть тут
+        if (input == 'f')
+        {
+            printf(">>> <i> by id\n");
+            printf(">>> <g> by group\n");
+            printf(">>> <n> by name\n");
+            printf(">>> <s> by surname\n\n");
+            printf("Input the searching parameter\n-: ");
+            //skippy_empty();
+            scanf("%c", &input);
+            //skippy_empty();
 
+            if (input == 'i')
+            {
+                int ids;
+                printf("Input the searching value\n-: ");
+                if (scanf("%d", &ids) != 1)
+                {
+                    printf("Error\n");
+                    continue;
+                }
+
+                Student *res = find_student_by_id(students, n, ids);
+                if (res == NULL)
+                {
+                    printf("Error or None\n");
+                    continue;
+                }
+                printf("Enter out file path\n");
+                printf("-: ");
+
+                char path[1024] = "";
+
+                if (scanf("%s", path) != 1)
+                {
+                    printf("Something wrong of Not founded\n");
+                    continue;
+                }
+                FILE *out = NULL;
+
+                out = fopen(path, "w");
+
+                if (out == NULL)
+                {
+                    printf("Invalid file\n");
+                    continue;
+                }
+                trace_student(res, out);
+                fclose(out);
+                printf("Success");
+                continue;
+            }
+            Student **res;
+            char line[1024];
+            printf("Input the searching value\n-: ");
+            if (scanf("%s", line) != 1)
+            {
+                printf("Error\n");
+                continue;
+            }
+            if (input == 'g')
+            {
+                res = find_students_by_group(students, n, line);
+            }
+            else if (input == 'n')
+            {
+                res = find_students_by_name(students, n, line);
+            }
+            else if (input == 's')
+            {
+                res = find_students_by_sname(students, n, line);
+            }
+            else
+            {
+                printf("Error: <%c> not valid param\n", input);
+                continue;
+            }
+
+            if (res == NULL)
+            {
+                printf("Error or None\n");
+                continue;
+            }
+            int reals = 0;
+            Student *curr = res[reals];
+            while (curr != NULL)
+            {
+                trace_student(curr, stdout);
+                curr = res[reals++];
+            }
+            free(res);
+            printf("\n");
+        }
         if (input == 'q')
         {
             break;
@@ -155,5 +253,4 @@ statements run(char *path)
         delete_student(students[i]);
     }
     free(students);
-    
 }

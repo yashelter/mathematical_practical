@@ -116,6 +116,84 @@ Student *find_student_by_id(Student **stds, int n, int id)
     return NULL;
 }
 
+Student **find_students_by_name(Student **stds, int n, char * name)
+{
+    Student ** res = (Student **) malloc(sizeof(Student *) * n);
+    int real = 0;
+    if (res == NULL)
+    {
+        return NULL;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        Student *s = stds[i];
+        if (strcmp(s->name->value, name) == 0)
+        {
+            res[real++] = s;
+        }
+    }
+    Student ** temp = (Student **) realloc(res, sizeof(Student *) * (real + 1));
+    if (temp == NULL){
+        free(res);
+        return NULL;
+    }
+    res = temp;
+    res[real] = NULL;
+    return res;
+}
+Student **find_students_by_sname(Student **stds, int n, char * sname)
+{
+    Student ** res = (Student **) malloc(sizeof(Student *) * n);
+    int real = 0;
+    if (res == NULL)
+    {
+        return NULL;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        Student *s = stds[i];
+        if (strcmp(s->s_name->value, sname) == 0)
+        {
+            res[real++] = s;
+        }
+    }
+    Student ** temp = (Student **) realloc(res, sizeof(Student *) * (real + 1));
+    if (temp == NULL){
+        free(res);
+        return NULL;
+    }
+    res = temp;
+    res[real] = NULL;
+    return res;
+}
+
+Student **find_students_by_group(Student **stds, int n, char * group)
+{
+    Student ** res = (Student **) malloc(sizeof(Student *) * n);
+    int real = 0;
+    if (res == NULL)
+    {
+        return NULL;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        Student *s = stds[i];
+        if (strcmp(s->group->value, group) == 0)
+        {
+            res[real++] = s;
+        }
+    }
+    Student ** temp = (Student **) realloc(res, sizeof(Student *) * (real + 1));
+    if (temp == NULL){
+        free(res);
+        return NULL;
+    }
+    res = temp;
+    res[real] = NULL;
+    return res;
+}
+
+
 void sort_students(Student **stds, int size, CompareFunction func)
 {
     qsort(stds, size, sizeof(Student *), func);
@@ -220,7 +298,10 @@ bool print_student(Student *st, FILE *file)
     fprintf(file, "Name is %s, Surname is %s\n", st->name->value, st->s_name->value);
     return true;
 }
-
+void trace_student(Student *st, FILE *file){
+    fprintf(file, "Name is %s, Surname is %s, group is %s, id=%u, mid n=%lf\n", st->name->value, st->s_name->value, st->group->value, 
+    st->id, sum_d(st->mas, st->m_size)); 
+}
 bool print_students(Student **stds, int n, FILE *file)
 {
     if (file == NULL)
