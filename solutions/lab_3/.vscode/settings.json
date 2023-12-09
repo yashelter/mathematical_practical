@@ -17,6 +17,8 @@
         "unordered_map": "c",
         "vector": "c",
         "stdio.h": "c",
-        "memory": "c"
+        "memory": "c",
+        "math.h": "c",
+        "string.h": "c"
     }
 }
