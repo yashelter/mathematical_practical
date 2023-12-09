@@ -59,9 +59,9 @@ char *scan_lexema(FILE *file, char *ending)
     return string;
 }
 
-statements run()
+statements run(const char *path)
 {
-    FILE *file = fopen("in.txt", "r");
+    FILE *file = fopen(path, "r");
     if (file == NULL)
     {
         return invalid_file;
@@ -73,6 +73,7 @@ statements run()
     cells.buf = 1;
     cells.len = 0;
     cells.cells = (MemoryCell **)malloc(sizeof(MemoryCell *));
+    
     if (cells.cells == NULL)
     {
         fclose(file);
