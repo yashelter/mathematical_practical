@@ -16,6 +16,7 @@ typedef enum
     invalid_file,
     end_of,
     not_found,
-    nulls, empty
+    nulls, empty,
+    invalid_notation
 } statements;
 

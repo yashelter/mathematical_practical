@@ -1,5 +1,4 @@
 #include "stack.c"
-#define FREEBLOCK
 
 bool ending_symb(char s)
 {
@@ -21,7 +20,7 @@ char *scan_line(FILE *file, int *resultin_cnt)
         return NULL;
     }
 
-    while ((symb = getc(file)) != EOF || symb != '\n')
+    while ((symb = getc(file)) != EOF && symb != '\n')
     {
         if (symb == ' ')
         {
@@ -182,32 +181,35 @@ char **my_split(char *line, char *bad, int *cnts)
     return mas;
 }
 
-int eval(char *to, int a, int b, char op)
+int eval(char **to, const char *lf, const char *rg, char op)
 {
+    int a = atoi(lf), b = atoi(rg);
     int result;
     if (op == '+')
     {
-        result = snprintf(to, sizeof(to), "%d", a + b);
+        result = snprintf(*to, sizeof(*to), "%d", a + b);
     }
     if (op == '-')
     {
-        result = snprintf(to, sizeof(to), "%d", a - b);
+        result = snprintf(*to, sizeof(*to), "%d", a - b);
     }
     if (op == '*')
     {
-        result = snprintf(to, sizeof(to), "%d", a * b);
+        result = snprintf(*to, sizeof(*to), "%d", a * b);
     }
     if (op == '/')
     {
-        result = snprintf(to, sizeof(to), "%d", a / b);
+        if (b == 0)
+            return -1;
+        result = snprintf(*to, sizeof(*to), "%d", a / b);
     }
     if (op == '%')
     {
-        result = snprintf(to, sizeof(to), "%d", a % b);
+        result = snprintf(*to, sizeof(*to), "%d", a % b);
     }
     if (op == '^')
     {
-        result = snprintf(to, sizeof(to), "%d", (int)pow(a, b));
+        result = snprintf(*to, sizeof(*to), "%d", (int)pow(a, b));
     }
     return result;
 }
@@ -227,7 +229,7 @@ void cleanup_memory(char ***ops, int l, Stack **a, char **st)
 
     *ops = NULL;
 }
-statements solve(char *line, char **result, int *answ)
+statements solve(char *line, char **result)
 {
     // if (line == NULL || result == NULL || answ == NULL)
     //{
@@ -329,7 +331,8 @@ statements solve(char *line, char **result, int *answ)
             }
             if (!flag)
             {
-                // invalid
+                cleanup_memory(&ops, l, &stack, &output);
+                return invalid_notation;
             }
         }
     }
@@ -337,10 +340,116 @@ statements solve(char *line, char **result, int *answ)
     while ((nd = stack_pop(stack)) != NULL)
     {
         out += sprintf(out, "%s ", nd->symb);
+        if (nd->symb[0] == '(')
+        {
+            delete_node(nd);
+            cleanup_memory(&ops, l, &stack, &output);
+            return invalid_notation;
+        }
         delete_node(nd);
     }
     cleanup_memory(&ops, l, &stack, NULL);
 
     *result = output;
+    return correct;
+}
+
+void bfree(char **v, int l)
+{
+    if (v == NULL)
+    {
+        return;
+    }
+    for (int i = 0; i < l; i++)
+    {
+        free(v[i]);
+        v[i] = NULL;
+    }
+    free(v);
+}
+statements calculate(char *rev_polish, int *asnw)
+{
+    int cnt = 0;
+    char **vals = my_split(rev_polish, " ", &cnt);
+    if (vals == NULL)
+    {
+        return allocate_error;
+    }
+    Stack *stack = create_stack();
+    if (stack == NULL)
+    {
+        bfree(vals, cnt);
+    }
+    for (int i = 0; i < cnt; i++)
+    {
+        if (strcmp(vals[i], " ") == 0)
+        {
+            free(vals[i]);
+            vals[i] = NULL;
+            continue;
+        }
+
+        if (is_number(vals[i]))
+        {
+            Node *cur = create_node(vals[i]);
+            if (cur == NULL)
+            {
+                bdelete_stack(&stack);
+                bfree(vals + i, cnt);
+                return allocate_error;
+            }
+            push_back(stack, cur);
+            continue;
+        }
+        else
+        {
+            Node *right = stack_pop(stack), *left = stack_pop(stack);
+
+            if (left == NULL || right == NULL)
+            {
+                bfree(vals, cnt);
+                bdelete_stack(&stack);
+
+                return invalid_notation;
+            }
+            char *buf = (char *)malloc(sizeof(char) * 20);
+            if (buf == NULL)
+            {
+                bdelete_stack(&stack);
+                bfree(vals + i, cnt);
+                return allocate_error;
+            }
+            int res = eval(&buf, left->symb, right->symb, vals[i][0]);
+
+            bdelete_node(left);
+            bdelete_node(right);
+
+            if (!(res > 0 && res < sizeof(buf)))
+            {
+                bdelete_stack(&stack);
+                bfree(vals + i, cnt);
+                return invalid_notation;
+            }
+            Node *nd = create_node(buf);
+            nd->need_clean = true;
+            if (nd == NULL)
+            {
+                bdelete_stack(&stack);
+                bfree(vals + i, cnt);
+                return allocate_error;
+            }
+            push_back(stack, nd);
+        }
+    }
+    if (stack->top == NULL || stack->top->next != NULL)
+    {
+        bfree(vals, cnt);
+        bdelete_stack(&stack);
+        return invalid_notation;
+    }
+
+    *asnw = atoi(stack->top->symb);
+    bfree(vals, cnt);
+    bdelete_stack(&stack);
     return correct;
 }
