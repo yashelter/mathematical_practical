@@ -162,7 +162,6 @@ char *generate_filename()
     return file;
 }
 
-
 // считаем выражение по дереву, со значяениями переменных values
 int solution_from_tree(Node *root, const char *variables, const int *values, const int count)
 {
@@ -227,7 +226,7 @@ int solution_from_tree(Node *root, const char *variables, const int *values, con
 }
 
 // построение таблицы истинности
-statements build_truth_table(Node *root, const int count, const char *mas, char **out_path)
+statements build_table(Node *root, const int count, const char *mas, char **out_path)
 {
     char *output_file = generate_filename();
     FILE *file = fopen(output_file, "w");
@@ -240,8 +239,9 @@ statements build_truth_table(Node *root, const int count, const char *mas, char 
 
     print_header(file, mas, count, root);
 
-    int num_combinations = 1 << count; // 2^count
+    int num_combinations = 1 << count;
     int means[count], result;
+
     for (int i = 0; i < num_combinations; i++)
     {
         for (int j = 0; j < count; j++)
@@ -252,6 +252,7 @@ statements build_truth_table(Node *root, const int count, const char *mas, char 
         }
         // результат при таких значениях переменных
         result = solution_from_tree(root, mas, means, count);
+        
         if (result == -1)
         {
             fclose(file);
@@ -266,26 +267,28 @@ statements build_truth_table(Node *root, const int count, const char *mas, char 
 }
 
 // перевод инфиксной в постфиксную
-statements infix_to_postfix(char **old_n, const char *new_n, int *length)
+statements infix_to_postfix(char **old_n, const char *new_n, int *leng)
 {
     Stack stack;
     create_stack(&stack);
 
     int infix_len = strlen(new_n);
-    char *postfix_result = (char *)malloc((2 * infix_len + 1) * sizeof(char));
-    if (postfix_result == NULL)
-        return allocate_error;
-
-    int infix_index = 0;
-    int postfix_index = 0;
-
-    while (infix_index < infix_len)
+    char *resulting = (char *)malloc((2 * infix_len + 1) * sizeof(char));
+    if (resulting == NULL)
     {
-        char symb = new_n[infix_index];
+        return allocate_error;
+    }
+
+    int str_i = 0;
+    int counter = 0;
+
+    while (str_i < infix_len)
+    {
+        char symb = new_n[str_i];
 
         if (isspace(symb))
         {
-            infix_index++;
+            str_i++;
             continue;
         }
 
@@ -293,17 +296,17 @@ statements infix_to_postfix(char **old_n, const char *new_n, int *length)
         {
             if (isdigit(symb) && symb != '0' && symb != '1')
             {
-                free(postfix_result);
+                free(resulting);
                 clear_stack(&stack);
                 return invalid_arguments;
             }
-            postfix_result[postfix_index++] = symb;
+            resulting[counter++] = symb;
         }
         else if (symb == '(')
         {
             if (push_back_stack(&stack, symb) != correct)
             {
-                free(postfix_result);
+                free(resulting);
                 clear_stack(&stack);
                 return allocate_error;
             }
@@ -312,7 +315,7 @@ statements infix_to_postfix(char **old_n, const char *new_n, int *length)
         {
             while (!is_empty_stack(&stack) && stack.top->data != '(')
             {
-                postfix_result[postfix_index++] = pop_stack(&stack);
+                resulting[counter++] = pop_stack(&stack);
             }
             pop_stack(&stack); // Удаляем '(' из стека
         }
@@ -320,61 +323,62 @@ statements infix_to_postfix(char **old_n, const char *new_n, int *length)
         {
             // Обработка двухсимвольных операторов
             if (!is_empty_stack(&stack) && priority(stack.top->data) >= priority(symb) &&
-                stack.top->data != '(' && is_two_char_operator(stack.top->data, new_n[infix_index + 1]))
+                stack.top->data != '(' && is_two_char_operator(stack.top->data, new_n[str_i + 1]))
             {
-                postfix_result[postfix_index++] = pop_stack(&stack);
+                resulting[counter++] = pop_stack(&stack);
             }
             if (push_back_stack(&stack, symb) != correct)
             {
-                free(postfix_result);
+                free(resulting);
                 clear_stack(&stack);
                 return allocate_error;
             }
 
-            if (is_two_char_operator(symb, new_n[infix_index + 1]))
+            if (is_two_char_operator(symb, new_n[str_i + 1]))
             {
-                infix_index++; // Пропускаем следующий символ
+                str_i++;
             }
         }
 
-        infix_index++;
+        str_i++;
     }
 
     while (!is_empty_stack(&stack))
     {
-        postfix_result[postfix_index++] = pop_stack(&stack);
+        resulting[counter++] = pop_stack(&stack);
     }
 
-    postfix_result[postfix_index] = '\0';
-    *old_n = postfix_result;
-    *length = postfix_index;
+    resulting[counter] = '\0';
+    *old_n = resulting;
+    *leng = counter;
+
     clear_stack(&stack);
 
     return correct;
 }
 
-statements build_tree(Node **tree, char *infix)
+statements build_tree(Node **tree, char *input)
 {
     char *postfix = NULL;
     int length = 0;
 
-    statements result = infix_to_postfix(&postfix, infix, &length);
+    statements result = infix_to_postfix(&postfix, input, &length);
     if (result != correct)
         return result;
 
-    Node_stack tree_stack;
-    node_stack_init(&tree_stack);
+    Node_stack stack;
+    node_stack_init(&stack);
     int index = 0;
     while (postfix[index] != '\0')
     {
-        
+
         char symbol = postfix[index];
         if (isalnum(symbol) || symbol == '0' || symbol == '1')
         {
             Node *node = create_node(symbol);
-            if (node == NULL || push_node(&tree_stack, node) != correct)
+            if (node == NULL || push_node(&stack, node) != correct)
             {
-                clear_node_stack(&tree_stack);
+                clear_node_stack(&stack);
                 free(postfix);
                 return allocate_error;
             }
@@ -391,13 +395,14 @@ statements build_tree(Node **tree, char *infix)
             else
                 new_node = create_node(symbol);
 
-            Node *right_node = pop_node(&tree_stack);
-            Node *left_node = pop_node(&tree_stack);
+            Node *right_node = pop_node(&stack);
+            Node *left_node = pop_node(&stack);
+
             new_node->left = left_node;
             new_node->right = right_node;
-            if (push_node(&tree_stack, new_node) != correct)
+            if (push_node(&stack, new_node) != correct)
             {
-                clear_node_stack(&tree_stack);
+                clear_node_stack(&stack);
                 free(postfix);
                 return allocate_error;
             }
@@ -405,8 +410,8 @@ statements build_tree(Node **tree, char *infix)
         index++;
     }
 
-    *tree = pop_node(&tree_stack);
-    clear_node_stack(&tree_stack);
+    *tree = pop_node(&stack);
+    clear_node_stack(&stack);
     free(postfix);
 
     return correct;
@@ -421,8 +426,9 @@ statements run(char *input_file, char **output_file)
     }
 
     char *line = NULL;
-    size_t buffer_size = 0;
-    size_t len = getline(&line, &buffer_size, file);
+
+    size_t bufsize = 0;
+    size_t len = getline(&line, &bufsize, file);
 
     if (len < 1 || !feof(file))
     {
@@ -431,66 +437,71 @@ statements run(char *input_file, char **output_file)
         return invalid_file;
     }
     fclose(file);
+
     
-    statements status;
     Node *root = NULL;
-    status = build_tree(&root, line);
-    if (status != correct)
+
+    statements state = build_tree(&root, line);
+    if (state != correct)
     {
         free(line);
-        return status;
+        return state;
     }
+
     char *variables = NULL;
     int count = cnt_unique_lets(&variables, line);
+
     free(line);
+
     if (count < 0)
     {
         free_tree(root);
         return allocate_error;
     }
 
-    status = build_truth_table(root, count, variables, output_file);
+    state = build_table(root, count, variables, output_file);
     free(variables);
     free_tree(root);
-    return status;
+
+    return state;
 }
 
-void exit_state(statements code)
+void exit_state(statements state)
 {
-    if (code == correct)
+    if (state == correct)
     {
         printf("Success\n");
     }
-    else if (code == allocate_error)
+    else if (state == allocate_error)
     {
         printf("Error: Memory allocation failure\n");
     }
-    else if (code == invalid_input)
+    else if (state == invalid_input)
     {
         printf("Error: Wrong input\n");
     }
-    else if (code == invalid_file)
+    else if (state == invalid_file)
     {
         printf("Error: File error\n");
     }
-    else if (code == runtime_error)
+    else if (state == runtime_error)
     {
         printf("Error: Runtime error\n");
     }
-    else if (code == invalid_brackets)
+    else if (state == invalid_brackets)
     {
         printf("Error: Wrong number of brackets\n");
     }
-    else if (code == invalid_arguments)
+    else if (state == invalid_arguments)
     {
         printf("Error: Wrong arguments\n");
     }
-    else if (code == invalid_operator)
+    else if (state == invalid_operator)
     {
         printf("Error: Wrong operator\n");
     }
     else
     {
-        printf("Unknown status code\n");
+        printf("Unknown state\n");
     }
 }
