@@ -1,12 +1,5 @@
 #include "Node.c"
 
-void skip_empty()
-{
-    char c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-    }
-}
 
 String *get_line(FILE *file, char *delimeters, statements *state)
 {
@@ -269,14 +262,14 @@ void run(int argc, char *argv[])
 
         printf("-: ");
         int scanned = scanf("%c", &input);
-        skip_empty();
+        skip_empty(stdin, '\n', &c);
         fflush(stdout);
         fflush(stdin);
 
         if (scanned != 1)
         {
             printf("Error : invalid input\n");
-            skip_empty();
+            skip_empty(stdin, '\n', &c);
             continue;
         }
 
@@ -314,7 +307,7 @@ void run(int argc, char *argv[])
             if (stm != correct)
             {
                 printf("Error : invalid input\n");
-                skip_empty();
+                skip_empty(stdin, '\n', &c);
                 continue;
             }
 
