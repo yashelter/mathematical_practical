@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#define __USE_XOPEN
+#include <time.h>
 
 #define MIN_BUF 200
 

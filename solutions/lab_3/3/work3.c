@@ -86,7 +86,8 @@ statements validate_params(int argc, char *argv[], FILE** file, char *flag)
     *flag = b;
     *file = fopen(argv[1], "r");
     
-    if (*file == NULL) {
+    if (*file == NULL)
+    {
         return invalid_file;
     }
     return correct;

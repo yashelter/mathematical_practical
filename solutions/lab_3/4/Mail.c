@@ -2,15 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-/*
-Экземпляр структуры Mail содержит в себе экземпляр структуры Address получателя
-(город (непустая строка), улица (непустая строка), номер дома (натуральное число),
-корпус (строка), номер квартиры (натуральное число), индекс получателя (строка из
-шести символов цифр)), вес посылки (неотрицательное вещественное число),
-почтовый идентификатор (строка из 14 символов цифр), время создания (строка в
-формате “dd:MM:yyyy hh:mm:ss”), время вручения (строка в формате “dd:MM:yyyy
-hh:mm:ss”). Экземпляр структуры Post содержит указатель на экземпляр структуры
-Address текущего почтового отделения и динамический массив экземпляров структур типа Mail. Р*/
 
 typedef struct
 {
@@ -365,7 +356,7 @@ void parse_timestamp(char *timestamp, struct tm *tm)
     tm->tm_sec = second;
 }
 
-void skip_empty()
+void skip_empty_safe()
 {
     char c;
     while ((c = getchar()) != '\n' && c != EOF)
@@ -530,7 +521,7 @@ statements track_mail(Post *post)
 
     char mail_id[14];
     scanf("%s", mail_id);
-    skip_empty();
+    skip_empty_safe();
 
     int position;
 
@@ -554,7 +545,7 @@ statements track_mail(Post *post)
         {
             printf("-: ");
             scanf(" %c", &response);
-            skip_empty();
+            skip_empty_safe();
             if (response == 'g')
             {
                 if (post->mails[position]->done){
@@ -627,7 +618,7 @@ void run(Post *post)
 
         printf("-: ");
         scanf("%c", &input);
-        skip_empty();
+        skip_empty_safe();
 
         if (input == 'c')
         {
@@ -641,7 +632,7 @@ void run(Post *post)
                 }
                 printf("\nError : while entering mail (code %d)\nPress Enter to continue ...", stm);
             }
-            skip_empty();
+            skip_empty_safe();
         }
         else if (input == 'm')
         {

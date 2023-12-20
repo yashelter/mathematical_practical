@@ -1,5 +1,6 @@
 #include "../MonoBehavior.c"
 
+// операция сложения с помощью бинарных операций
 int plus(int num1, int num2)
 {
     int res = 0, carry = 0;
