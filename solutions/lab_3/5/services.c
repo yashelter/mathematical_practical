@@ -76,12 +76,12 @@ statements run(char *path)
 
     while (true)
     {
-        //skippy_empty();
+        // skippy_empty();
         printf("-: ");
         char input;
         scanf("%c", &input);
 
-        //skippy_empty();
+        skippy_empty();
         if (input == 's')
         {
             printf("Select sort parameter\n");
@@ -90,9 +90,11 @@ statements run(char *path)
             printf(">>> <n> by name\n");
             printf(">>> <s> by surname\n\n");
             printf("-: ");
+            fflush(stdin);
             scanf("%c", &input);
-            //skippy_empty();
-            CompareFunction ptr;
+            
+            skippy_empty();
+            CompareFunction ptr = NULL;
             if (input == 'i')
             {
                 ptr = compare_by_id;
@@ -109,7 +111,11 @@ statements run(char *path)
             {
                 ptr = compare_by_sname;
             }
-            sort_students(students, n, ptr);
+            if (ptr != NULL)
+            {
+                sort_students(students, n, ptr);
+                printf("Sorted succesfully\n");
+            }
         }
         if (input == 't')
         {
@@ -149,7 +155,6 @@ statements run(char *path)
             fclose(out);
             free(good);
         }
-        // осталось чучуть тут
         if (input == 'f')
         {
             printf(">>> <i> by id\n");
@@ -157,9 +162,9 @@ statements run(char *path)
             printf(">>> <n> by name\n");
             printf(">>> <s> by surname\n\n");
             printf("Input the searching parameter\n-: ");
-            //skippy_empty();
+            // skippy_empty();
             scanf("%c", &input);
-            //skippy_empty();
+            // skippy_empty();
 
             if (input == 'i')
             {
@@ -203,7 +208,9 @@ statements run(char *path)
             }
             Student **res;
             char line[1024];
+
             printf("Input the searching value\n-: ");
+
             if (scanf("%s", line) != 1)
             {
                 printf("Error\n");
