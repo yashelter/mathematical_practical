@@ -27,7 +27,7 @@ void printq()
     printf("-: a - average income\n");
     printf("-: q - cancel\n-?:\n");
 }
-statements interactive(list *lst, undo_stack *stack)
+statements run(list *lst, undo_stack *stack)
 {
     int count_of_operation = 0;
     int can_undo = 0;

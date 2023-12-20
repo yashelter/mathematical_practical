@@ -88,6 +88,6 @@ int main(int argc, char** argv)
         case correct:
             break;
     }
-    interactive(&main_list);
+    run(&main_list);
     free_list_buses(&main_list);
 }

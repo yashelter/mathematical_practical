@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     printf("Sucessfully starting...\n");
 
     // print_list(&main_list, "stdout");
-    typo = interactive(&main_list, &stack);
+    typo = run(&main_list, &stack);
 
     if (typo != correct)
     {

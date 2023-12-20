@@ -1,5 +1,5 @@
-#define _XOPEN_SOURCE
-#include <time.h>
+//#define _XOPEN_SOURCE
+//#include <time.h>
 #include <errno.h>
 #include <math.h>
 #include <signal.h>

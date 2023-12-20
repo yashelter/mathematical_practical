@@ -804,7 +804,7 @@ char* stop_time(Buses_list* list, statements* st, double* len)
     }
 }
 
-void interactive(Buses_list* list)
+void run(Buses_list* list)
 {
     while(1) 
     {
