@@ -205,6 +205,8 @@ int eval(char **to, const char *lf, const char *rg, char op)
     }
     if (op == '%')
     {
+        if (b == 0)
+            return -1;
         result = snprintf(*to, sizeof(*to), "%d", a % b);
     }
     if (op == '^')
