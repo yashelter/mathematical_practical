@@ -3,9 +3,8 @@
 #include <ctype.h>
 #include <string.h>
 
-const int MAX_SIZE_LL = 18,
-          MAX_LIMIT_RANGE = 100;
-
+#define MAX_SIZE_LL 18
+#define MAX_LIMIT_RANGE 100
 
 // input's checks
 

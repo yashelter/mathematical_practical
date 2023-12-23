@@ -341,9 +341,9 @@ long double ln2_newton(char* str)
 }
 
 
-long double sqtr2_func(long double x) { return x*x - 2; }
+long double sqrt2_func(long double x) { return x*x - 2; }
 
-long double sqtr2_df(long double x) { return 2 * x; }
+long double sqrt2_df(long double x) { return 2 * x; }
 
 
 long double sqrt2_newton(char* str)
@@ -352,9 +352,9 @@ long double sqrt2_newton(char* str)
 
     long double x = ONE;
 
-    while (fabsl(sqtr2_func(x)) > epsilon) 
+    while (fabsl(sqrt2_func(x)) > epsilon) 
     {
-        x = x - sqtr2_func(x) / sqtr2_df(x);
+        x = x - sqrt2_func(x) / sqrt2_df(x);
     }
     return x;
 
