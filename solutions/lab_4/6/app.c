@@ -166,10 +166,9 @@ char *generate_filename()
 int solution_from_tree(Node *root, const char *variables, const int *values, const int count)
 {
     if (root == NULL)
-        return -1;
+        return -10;
 
-    int left = solution_from_tree(root->left, variables, values, count);
-    int right = solution_from_tree(root->right, variables, values, count);
+    int left = -10, right = -10;
 
     if (isalpha(root->data))
     {
@@ -180,6 +179,11 @@ int solution_from_tree(Node *root, const char *variables, const int *values, con
                 return values[i];
             }
         }
+    }
+    else
+    {
+        left = solution_from_tree(root->left, variables, values, count);
+        right = solution_from_tree(root->right, variables, values, count);
     }
 
     if (root->data == '0' || root->data == '1')
@@ -195,6 +199,10 @@ int solution_from_tree(Node *root, const char *variables, const int *values, con
     }
     if (root->data == '~')
     {
+        if (left == -10)
+        {
+            left = right;
+        }
         return ~left;
     }
     if (root->data == '-')
@@ -222,7 +230,7 @@ int solution_from_tree(Node *root, const char *variables, const int *values, con
         return ~(left | right);
     }
 
-    return -1;
+    return -10;
 }
 
 // построение таблицы истинности
@@ -252,8 +260,8 @@ statements build_table(Node *root, const int count, const char *mas, char **out_
         }
         // результат при таких значениях переменных
         result = solution_from_tree(root, mas, means, count);
-        
-        if (result == -1)
+
+        if (result == -10)
         {
             fclose(file);
             free(output_file);
@@ -438,7 +446,6 @@ statements run(char *input_file, char **output_file)
     }
     fclose(file);
 
-    
     Node *root = NULL;
 
     statements state = build_tree(&root, line);
